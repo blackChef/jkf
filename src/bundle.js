@@ -22,9 +22,7 @@ function registerBundle(bundle) {
 // 检查该属性是某个bundle 的子属性
 // 如果是，将bundle 返回
 function isBundleItem(prop) {
-  var ret;
-
-  bundleProps.some(function(item, index, array) {
+  return bundleProps.find(function(item, index, array) {
     var contain;
     var check = item.check;
     if (typeof check == 'function') {
@@ -32,22 +30,14 @@ function isBundleItem(prop) {
     } else {
       contain = check.indexOf(prop) != -1;
     }
-
-    if (contain) {
-      ret = item;
-      return true;
-    }
+    return contain;
   });
-
-  return ret;
 }
 
 // 默认将transform 注册成bundle
 registerBundle({
   name: 'transform',
-  check: function(single) {
-    return single.match(/translate|rotate|scale|skew/);
-  },
+  check: ['translate', 'rotate', 'scale', 'skew'],
   combine: function(values) {
     var ret = values.map(function(item, index, array) {
       return item.prop + '(' + item.value + ')';

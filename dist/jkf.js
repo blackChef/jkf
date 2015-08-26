@@ -55,12 +55,13 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var registerBundle = __webpack_require__(1).registerBundle;
-	var update = __webpack_require__(3);
+	var registerBundle = __webpack_require__(2).registerBundle;
+	var update = __webpack_require__(4);
 	var animate = __webpack_require__(7);
-	var parse = __webpack_require__(6);
+	var parse = __webpack_require__(1);
 
 	__webpack_require__(9);
+	__webpack_require__(10);
 
 	// 可以把kf 反过来的工具函数
 	function reverseKf(kf) {
@@ -87,9 +88,149 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 1 */
+/***/ function(module, exports) {
+
+	
+	// original: {
+	//   0: {
+	//     rotate: 0, opacity: 0
+	//   },
+
+	//   0.7: {
+	//     rotate: '120deg'
+	//   },
+
+	//   1: {
+	//     rotate: '360deg', opacity: 1
+	//   }
+	// };
+
+
+	// step1: [
+	//   { prop: 'rotateY',
+	//     unit: 'deg',
+	//     rule: [
+	//      { point: 0, value: 0 },
+	//      { point: 0.7, value: 120 },
+	//      { point: 1, value: 360 }
+	//     ],
+	//   },
+	//   { prop: 'opacity',
+	//     unit: '',
+	//     rule: [
+	//      { point: 0, value: 0 },
+	//      { point: 1, value: 1 },
+	//     ]
+	//   }
+	// ]
+	function step1(kf) {
+	  var ret = [];
+
+	  var points = Object.keys(kf).sort();
+	  points.forEach(function(point, index, array) {
+	    var rule = kf[point];
+
+	    for (var prop in rule) {
+	      var value = rule[prop] + '';
+	      var valueNum = +value.match(/-?[\d\.]+/)[0];
+	      var valueUnit = value.replace(valueNum, '');
+
+	      var retItem = ret.find(function(item, index, array) {
+	        if (item.prop == prop) {
+	          return true;
+	        }
+	      });
+
+	      var ruleItem = {
+	        point: +point,
+	        value: valueNum
+	      };
+
+	      if (!retItem) {
+	        ret.push({
+	          prop: prop,
+	          unit: valueUnit,
+	          rule: [ruleItem]
+	        });
+
+	      } else {
+	        retItem.rule.push(ruleItem);
+
+	        // 属性可能一开始是0，没有单位
+	        if (!retItem.unit) {
+	          retItem.unit = valueUnit;
+	        }
+	      }
+	    }
+	  });
+
+	  return ret;
+	}
+
+
+	// fn 是属性在startPoint 和 endPoint 直接变化的函数
+	// step2: [
+	//   { prop: 'rotateY',
+	//     unit: 'deg',
+	//     rule: [
+	//       { startPoint: 0, endPoint: 0.7, fn: function... },
+	//       { startPoint: 0.7, endPoint: 1, fn: function... }
+	//     ],
+	//   },
+	//   { prop: 'opacity',
+	//     unit: '',
+	//     rule: [
+	//       { startPoint: 0, endPoint: 1, fn: function... }
+	//     ]
+	//   }
+	// ]
+	function step2(step1Ret) {
+	  return step1Ret.map(function(item, index, array) {
+	    item.rule = compileRule(item.rule);
+	    return item;
+	  });
+	}
+
+	function compileRule(rule) {
+	  var ret = [];
+
+	  rule.forEach(function(curItem, index, array) {
+	    var nextItem = rule[index + 1];
+	    if (nextItem) {
+	      var startPoint = curItem.point;
+	      var endPoint = nextItem.point;
+	      var fn = setEquation(startPoint, curItem.value, endPoint, nextItem.value);
+	      ret.push({
+	        startPoint: startPoint,
+	        endPoint: endPoint,
+	        fn: fn
+	      });
+	    }
+	  });
+
+	  return ret;
+	}
+
+	// 根据两点得到线性方程
+	function setEquation(x1, y1, x2, y2) {
+	  var k = (y1 - y2) / (x1 - x2);
+	  var b = y1 - k * x1;
+
+	  return function(progress) {
+	    // toFixed(8) 避免出现科学计数法
+	    return (k * progress + b).toFixed(8);
+	  };
+	}
+
+	module.exports = function(kf) {
+	  return step2(step1(kf));
+	};
+
+/***/ },
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var prefix = __webpack_require__(2);
+	var prefix = __webpack_require__(3);
 
 	// bundleProp 指的是由多个子属性组成的属性
 	// 例如transform 由rotate，transform 等组成,
@@ -113,9 +254,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	// 检查该属性是某个bundle 的子属性
 	// 如果是，将bundle 返回
 	function isBundleItem(prop) {
-	  var ret;
-
-	  bundleProps.some(function(item, index, array) {
+	  return bundleProps.find(function(item, index, array) {
 	    var contain;
 	    var check = item.check;
 	    if (typeof check == 'function') {
@@ -123,22 +262,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else {
 	      contain = check.indexOf(prop) != -1;
 	    }
-
-	    if (contain) {
-	      ret = item;
-	      return true;
-	    }
+	    return contain;
 	  });
-
-	  return ret;
 	}
 
 	// 默认将transform 注册成bundle
 	registerBundle({
 	  name: 'transform',
-	  check: function(single) {
-	    return single.match(/translate|rotate|scale|skew/);
-	  },
+	  check: ['translate', 'rotate', 'scale', 'skew'],
 	  combine: function(values) {
 	    var ret = values.map(function(item, index, array) {
 	      return item.prop + '(' + item.value + ')';
@@ -153,7 +284,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports) {
 
 	// 为属性舔加浏览器前缀，可能不适用于所有属性
@@ -179,11 +310,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = prefix;
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var style = __webpack_require__(4);
-	var checkKf = __webpack_require__(5);
+	var style = __webpack_require__(5);
+	var checkKf = __webpack_require__(6);
 
 
 	// 给定progress，将elem style 成kf 中对应的状态
@@ -196,11 +327,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = update;
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var prefix = __webpack_require__(2);
-	var isBundleItem = __webpack_require__(1).isBundleItem;
+	var prefix = __webpack_require__(3);
+	var isBundleItem = __webpack_require__(2).isBundleItem;
 
 	// 获取progress 对应的值
 	function getValue(elem, kfItem, progress, allowProgressOutOfRange) {
@@ -304,10 +435,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = style;
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var parse = __webpack_require__(6);
+	var parse = __webpack_require__(1);
 
 	// 检查kf是否已经被parse过
 	module.exports = function(kf) {
@@ -318,154 +449,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	
-	// original: {
-	//   0: {
-	//     rotate: 0, opacity: 0
-	//   },
-
-	//   0.7: {
-	//     rotate: '120deg'
-	//   },
-
-	//   1: {
-	//     rotate: '360deg', opacity: 1
-	//   }
-	// };
-
-
-	// step1: [
-	//   { prop: 'rotateY',
-	//     unit: 'deg',
-	//     rule: [
-	//      { point: 0, value: 0 },
-	//      { point: 0.7, value: 120 },
-	//      { point: 1, value: 360 }
-	//     ],
-	//   },
-	//   { prop: 'opacity',
-	//     unit: '',
-	//     rule: [
-	//      { point: 0, value: 0 },
-	//      { point: 1, value: 1 },
-	//     ]
-	//   }
-	// ]
-	function step1(kf) {
-	  var ret = [];
-
-	  var points = Object.keys(kf).sort();
-	  points.forEach(function(point, index, array) {
-	    var rule = kf[point];
-
-	    for (var prop in rule) {
-	      var value = rule[prop] + '';
-	      var valueNum = +value.match(/-?[\d\.]+/)[0];
-	      var valueUnit = value.replace(valueNum, '');
-
-	      var retItem;
-	      ret.some(function(item, index, array) {
-	        if (item.prop == prop) {
-	          retItem = item;
-	          return true;
-	        }
-	      });
-
-	      var ruleItem = {
-	        point: +point,
-	        value: valueNum
-	      };
-
-	      if (!retItem) {
-	        ret.push({
-	          prop: prop,
-	          unit: valueUnit,
-	          rule: [ruleItem]
-	        });
-
-	      } else {
-	        retItem.rule.push(ruleItem);
-
-	        // 属性可能一开始是0，没有单位
-	        if (!retItem.unit) {
-	          retItem.unit = valueUnit;
-	        }
-	      }
-	    }
-	  });
-
-	  return ret;
-	}
-
-
-	// fn 是属性在startPoint 和 endPoint 直接变化的函数
-	// step2: [
-	//   { prop: 'rotateY',
-	//     unit: 'deg',
-	//     rule: [
-	//       { startPoint: 0, endPoint: 0.7, fn: function... },
-	//       { startPoint: 0.7, endPoint: 1, fn: function... }
-	//     ],
-	//   },
-	//   { prop: 'opacity',
-	//     unit: '',
-	//     rule: [
-	//       { startPoint: 0, endPoint: 1, fn: function... }
-	//     ]
-	//   }
-	// ]
-	function step2(step1Ret) {
-	  return step1Ret.map(function(item, index, array) {
-	    item.rule = compileRule(item.rule);
-	    return item;
-	  });
-	}
-
-	function compileRule(rule) {
-	  var ret = [];
-
-	  rule.forEach(function(curItem, index, array) {
-	    var nextItem = rule[index + 1];
-	    if (nextItem) {
-	      var startPoint = curItem.point;
-	      var endPoint = nextItem.point;
-	      var fn = setEquation(startPoint, curItem.value, endPoint, nextItem.value);
-	      ret.push({
-	        startPoint: startPoint,
-	        endPoint: endPoint,
-	        fn: fn
-	      });
-	    }
-	  });
-
-	  return ret;
-	}
-
-	// 根据两点得到线性方程
-	function setEquation(x1, y1, x2, y2) {
-	  var k = (y1 - y2) / (x1 - x2);
-	  var b = y1 - k * x1;
-
-	  return function(progress) {
-	    // toFixed(8) 避免出现科学计数法
-	    return (k * progress + b).toFixed(8);
-	  };
-	}
-
-	module.exports = function(kf) {
-	  return step2(step1(kf));
-	};
-
-/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var style = __webpack_require__(4);
+	var style = __webpack_require__(5);
 	var BezierEasing = __webpack_require__(8);
-	var checkKf = __webpack_require__(5);
+	var checkKf = __webpack_require__(6);
 
 
 	// 让elem 沿着kf 做动画
@@ -729,6 +718,35 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 9 */
+/***/ function(module, exports) {
+
+	
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+	if (!Array.prototype.find) {
+	  Array.prototype.find = function(predicate) {
+	    if (this === null) {
+	      throw new TypeError('Array.prototype.find called on null or undefined');
+	    }
+	    if (typeof predicate !== 'function') {
+	      throw new TypeError('predicate must be a function');
+	    }
+	    var list = Object(this);
+	    var length = list.length >>> 0;
+	    var thisArg = arguments[1];
+	    var value;
+
+	    for (var i = 0; i < length; i++) {
+	      value = list[i];
+	      if (predicate.call(thisArg, value, i, list)) {
+	        return value;
+	      }
+	    }
+	    return undefined;
+	  };
+	}
+
+/***/ },
+/* 10 */
 /***/ function(module, exports) {
 
 	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
