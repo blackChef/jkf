@@ -55,13 +55,14 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var registerBundle = __webpack_require__(2).registerBundle;
-	var update = __webpack_require__(4);
+	var registerBundle = __webpack_require__(1).registerBundle;
+	var update = __webpack_require__(3);
 	var animate = __webpack_require__(7);
-	var parse = __webpack_require__(1);
+	var parse = __webpack_require__(6);
 
 	__webpack_require__(9);
 	__webpack_require__(10);
+	__webpack_require__(11);
 
 	// 可以把kf 反过来的工具函数
 	function reverseKf(kf) {
@@ -88,6 +89,230 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var prefix = __webpack_require__(2);
+
+	// bundleProp 指的是由多个子属性组成的属性
+	// 例如transform 由rotate，transform 等组成,
+	// 可以自定义bundle，例如将background-color 分拆成r, g, b
+	// bundle: {
+	//  name: elem.style[name] = combinedValue 时使用
+	//  check: 检查某个属性是否属于该bundle 的子属性。可以是函数或者数组
+	//  combine: 合并子属性的方法，elem.style[name] = combinedValue 时使用
+	//  prefix: 如果为true，会调用prefix 方法，改写name 的值
+	// }
+	var bundleProps = [];
+
+	function registerBundle(bundle) {
+	  var _bundle = Object.create(bundle);
+	  if (_bundle.prefix) {
+	    _bundle.name = prefix(_bundle.name);
+	  }
+	  bundleProps.push(_bundle);
+	}
+
+	// 检查该属性是某个bundle 的子属性
+	// 如果是，将bundle 返回
+	function isBundleItem(prop) {
+	  return bundleProps.find(function(item, index, array) {
+	    var contain;
+	    var check = item.check;
+	    if (typeof check == 'function') {
+	      contain = check(prop);
+	    } else {
+	      contain = check.indexOf(prop) != -1;
+	    }
+	    return contain;
+	  });
+	}
+
+	// 默认将transform 注册成bundle
+	registerBundle({
+	  name: 'transform',
+	  check: function(prop) {
+	    return prop.match(/translate|rotate|scale|skew/);
+	  },
+	  combine: function(values) {
+	    var ret = values.map(function(item, index, array) {
+	      return item.prop + '(' + item.value + ')';
+	    });
+	    return ret.join(' ');
+	  },
+	  prefix: true
+	});
+
+	exports.registerBundle = registerBundle;
+	exports.isBundleItem = isBundleItem;
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	// 为属性舔加浏览器前缀，可能不适用于所有属性
+	function prefix(prop) {
+	  var ret;
+
+	  var vendor = ['', 'webkit', 'moz', 'ms'];
+	  vendor.some(function(item, index, array) {
+	    var _prop = prop;
+	    if (item) {
+	      _prop = item + prop.charAt(0).toUpperCase() + prop.slice(1);
+	    }
+
+	    if (document.createElement('div').style[_prop] !== undefined) {
+	      ret = _prop;
+	      return true;
+	    }
+	  });
+
+	  return ret;
+	}
+
+	module.exports = prefix;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var style = __webpack_require__(4);
+	var checkKf = __webpack_require__(5);
+
+
+	// 给定progress，将elem style 成kf 中对应的状态
+	function update(elem, kf, progress, allowProgressOutOfRange) {
+	  allowProgressOutOfRange = allowProgressOutOfRange || false;
+	  kf = checkKf(kf);
+	  style(elem, kf, progress, allowProgressOutOfRange);
+	}
+
+	module.exports = update;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var prefix = __webpack_require__(2);
+	var isBundleItem = __webpack_require__(1).isBundleItem;
+
+	// 获取progress 对应的值
+	function getValue(elem, kfItem, progress, allowProgressOutOfRange) {
+	  var rule = kfItem.rule;
+	  var valueUnit = kfItem.unit;
+	  var valueNum;
+
+	  // allowProgressOutOfRange === true 时，允许progress小于0或大于1(bounce effect)
+	  // progress小于0的值被带入第一段rule里计算
+	  // progress大于1的值被带入最后一段rule里计算
+	  if (allowProgressOutOfRange && progress > 1) {
+	    valueNum = rule[rule.length - 1].fn(progress);
+	  }
+
+	  else if (allowProgressOutOfRange && progress < 0) {
+	    valueNum = rule[0].fn(progress);
+	  }
+
+	  else {
+	    [].forEach.call(rule, function(ruleItem, index, self) {
+	      if (progress >= ruleItem.startPoint && progress <= ruleItem.endPoint) {
+	        valueNum = ruleItem.fn(progress);
+	        // elem.dataset.jkfProgress = progress;
+
+
+	      // update时，progress的变化不是连续的，比最后一个point 还大的progress 当作最后一个point
+	      } else if (index == self.length - 1) {
+	        var lastEndPoint = ruleItem.endPoint;
+	        if (progress > lastEndPoint) {
+	          valueNum = ruleItem.fn(lastEndPoint);
+	          // elem.dataset.jkfProgress = lastEndPoint;
+	        }
+	      }
+	    });
+	  }
+
+	  return valueNum + valueUnit;
+	}
+
+	// 应用属性的值
+	function style(elem, kf, progress, allowProgressOutOfRange) {
+	  // 存放属于bundleProp 的属性
+	  // bundle: {
+	  //   name: bundle 的名字，
+	  //   values: [
+	  //     {
+	  //       prop: 子元素的名字，
+	  //       value：子元素的值
+	  //     }
+	  //   ],
+	  //   combine: 合并values 函数
+	  // }
+	  var bundles = {};
+
+	  // 遍历kf，得到所有属性在该progress 的值并应用
+	  [].forEach.call(kf, function(kfItem, index, array) {
+	    var prop = kfItem.prop;
+	    var value = getValue(elem, kfItem, progress, allowProgressOutOfRange);
+	    if (value !== undefined) {
+	      // 检查该属性是否属于某个bundle
+	      var bundle = isBundleItem(prop);
+
+	      // 如果不是bundle，直接应用style
+	      if (!bundle) {
+
+	        // zIndex 的值只能是整数
+	        if (prop == 'zIndex') {
+	          value = parseInt(value, 10);
+	        }
+
+	        elem.style[prop] = value;
+
+	        // 是bundle 的属性，需要结束kf 的遍历之后再合并应用
+	      } else {
+	        var bundleName = bundle.name;
+
+	        if (!bundles[bundleName]) {
+	          bundles[bundleName] = {
+	            values: [{
+	              prop: prop,
+	              value: value
+	            }],
+	            combine: bundle.combine
+	          };
+	        } else {
+	          bundles[bundleName].values.push({
+	            prop: prop,
+	            value: value
+	          });
+	        }
+	      }
+	    }
+	  });
+
+	  for (var prop in bundles) {
+	    var item = bundles[prop];
+	    elem.style[prop] = item.combine(item.values);
+	  }
+	}
+
+	module.exports = style;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var parse = __webpack_require__(6);
+
+	// 检查kf是否已经被parse过
+	module.exports = function(kf) {
+	  if (!Array.isArray(kf)) {
+	    kf = parse(kf);
+	  }
+	  return kf;
+	};
+
+/***/ },
+/* 6 */
 /***/ function(module, exports) {
 
 	
@@ -227,269 +452,40 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var prefix = __webpack_require__(3);
-
-	// bundleProp 指的是由多个子属性组成的属性
-	// 例如transform 由rotate，transform 等组成,
-	// 可以自定义bundle，例如将background-color 分拆成r, g, b
-	// bundle: {
-	//  name: elem.style[name] = combinedValue 时使用
-	//  check: 检查某个属性是否属于该bundle 的子属性。可以是函数或者数组
-	//  combine: 合并子属性的方法，elem.style[name] = combinedValue 时使用
-	//  prefix: 如果为true，会调用prefix 方法，改写name 的值
-	// }
-	var bundleProps = [];
-
-	function registerBundle(bundle) {
-	  var _bundle = Object.create(bundle);
-	  if (_bundle.prefix) {
-	    _bundle.name = prefix(_bundle.name);
-	  }
-	  bundleProps.push(_bundle);
-	}
-
-	// 检查该属性是某个bundle 的子属性
-	// 如果是，将bundle 返回
-	function isBundleItem(prop) {
-	  return bundleProps.find(function(item, index, array) {
-	    var contain;
-	    var check = item.check;
-	    if (typeof check == 'function') {
-	      contain = check(prop);
-	    } else {
-	      contain = check.indexOf(prop) != -1;
-	    }
-	    return contain;
-	  });
-	}
-
-	// 默认将transform 注册成bundle
-	registerBundle({
-	  name: 'transform',
-	  check: ['translate', 'rotate', 'scale', 'skew'],
-	  combine: function(values) {
-	    var ret = values.map(function(item, index, array) {
-	      return item.prop + '(' + item.value + ')';
-	    });
-	    return ret.join(' ');
-	  },
-	  prefix: true
-	});
-
-	exports.registerBundle = registerBundle;
-	exports.isBundleItem = isBundleItem;
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	// 为属性舔加浏览器前缀，可能不适用于所有属性
-	function prefix(prop) {
-	  var ret;
-
-	  var vendor = ['', 'webkit', 'moz', 'ms'];
-	  vendor.some(function(item, index, array) {
-	    var _prop = prop;
-	    if (item) {
-	      _prop = item + prop.charAt(0).toUpperCase() + prop.slice(1);
-	    }
-
-	    if (document.createElement('div').style[_prop] !== undefined) {
-	      ret = _prop;
-	      return true;
-	    }
-	  });
-
-	  return ret;
-	}
-
-	module.exports = prefix;
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var style = __webpack_require__(5);
-	var checkKf = __webpack_require__(6);
-
-
-	// 给定progress，将elem style 成kf 中对应的状态
-	function update(elem, kf, progress, allowProgressOutOfRange) {
-	  allowProgressOutOfRange = allowProgressOutOfRange || false;
-	  kf = checkKf(kf);
-	  style(elem, kf, progress, allowProgressOutOfRange);
-	}
-
-	module.exports = update;
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var prefix = __webpack_require__(3);
-	var isBundleItem = __webpack_require__(2).isBundleItem;
-
-	// 获取progress 对应的值
-	function getValue(elem, kfItem, progress, allowProgressOutOfRange) {
-	  var rule = kfItem.rule;
-	  var valueUnit = kfItem.unit;
-	  var valueNum;
-
-	  // allowProgressOutOfRange === true 时，允许progress小于0或大于1(bounce effect)
-	  // progress小于0的值被带入第一段rule里计算
-	  // progress大于1的值被带入最后一段rule里计算
-	  if (allowProgressOutOfRange && progress > 1) {
-	    valueNum = rule[rule.length - 1].fn(progress);
-	  }
-
-	  else if (allowProgressOutOfRange && progress < 0) {
-	    valueNum = rule[0].fn(progress);
-	  }
-
-	  else {
-	    [].forEach.call(rule, function(ruleItem, index, self) {
-	      if (progress >= ruleItem.startPoint && progress <= ruleItem.endPoint) {
-	        valueNum = ruleItem.fn(progress);
-	        // elem.dataset.jkfProgress = progress;
-
-
-	      // update时，progress的变化不是连续的，比最后一个point 还大的progress 当作最后一个point
-	      } else if (index == self.length - 1) {
-	        var lastEndPoint = ruleItem.endPoint;
-	        if (progress > lastEndPoint) {
-	          valueNum = ruleItem.fn(lastEndPoint);
-	          // elem.dataset.jkfProgress = lastEndPoint;
-	        }
-	      }
-	    });
-	  }
-
-	  return valueNum + valueUnit;
-	}
-
-	// 应用属性的值
-	function style(elem, kf, progress, allowProgressOutOfRange) {
-	  // 存放属于bundleProp 的属性
-	  // bundle: {
-	  //   name: bundle 的名字，
-	  //   values: [
-	  //     {
-	  //       prop: 子元素的名字，
-	  //       value：子元素的值
-	  //     }
-	  //   ],
-	  //   combine: 合并values 函数
-	  // }
-	  var bundles = {};
-
-	  // 遍历kf，得到所有属性在该progress 的值并应用
-	  [].forEach.call(kf, function(kfItem, index, array) {
-	    var prop = kfItem.prop;
-	    var value = getValue(elem, kfItem, progress, allowProgressOutOfRange);
-	    if (value !== undefined) {
-	      // 检查该属性是否属于某个bundle
-	      var bundle = isBundleItem(prop);
-
-	      // 如果不是bundle，直接应用style
-	      if (!bundle) {
-
-	        // zIndex 的值只能是整数
-	        if (prop == 'zIndex') {
-	          value = parseInt(value, 10);
-	        }
-
-	        elem.style[prop] = value;
-
-	        // 是bundle 的属性，需要结束kf 的遍历之后再合并应用
-	      } else {
-	        var bundleName = bundle.name;
-
-	        if (!bundles[bundleName]) {
-	          bundles[bundleName] = {
-	            values: [{
-	              prop: prop,
-	              value: value
-	            }],
-	            combine: bundle.combine
-	          };
-	        } else {
-	          bundles[bundleName].values.push({
-	            prop: prop,
-	            value: value
-	          });
-	        }
-	      }
-	    }
-	  });
-
-	  for (var prop in bundles) {
-	    var item = bundles[prop];
-	    elem.style[prop] = item.combine(item.values);
-	  }
-	}
-
-	module.exports = style;
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var parse = __webpack_require__(1);
-
-	// 检查kf是否已经被parse过
-	module.exports = function(kf) {
-	  if (!Array.isArray(kf)) {
-	    kf = parse(kf);
-	  }
-	  return kf;
-	};
-
-/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var style = __webpack_require__(5);
+	var style = __webpack_require__(4);
 	var BezierEasing = __webpack_require__(8);
-	var checkKf = __webpack_require__(6);
+	var checkKf = __webpack_require__(5);
 
 
-	// 让elem 沿着kf 做动画
+	// 让 elem 沿着 kf 做动画
 	// duration: 以毫秒为单位
 	// options = {
 	//   from: 起始点
 	//   to：终点
 	//       终点可以小于起始点，例如from: 1， to: 0
 	//
-	//   tf(timing function)：tf 和 timing function 都可以作为属性名，
-	//                        支持数组形式的Bezier 曲线，
-	//                        支持linear，ease，ease-in，ease-out，ease-in-out 关键字，默认为ease
-	//   onBefore：在动画开始前执行的函数，参数是elem
+	//   timing function：支持数组形式的 cubic-bezier values，
+	//                    支持 linear，ease，ease-in，ease-out，ease-in-out 关键字，默认为ease
 	//   onAnimating：在每一帧执行的函数，参数是elem
 	//   onAfter：在动画结束后执行的函数，参数是elem
 	// }
+
 	function animate(elem, kf, duration, options) {
 	  options = setAnimateOptions(options);
 	  kf = checkKf(kf);
-
 	  var from = options.from;
 	  var to = options.to;
-	  var tf = options.tf;
+	  var tf = options.timingFunction;
 
-	  var onBefore = options.onBefore;
 	  var onAfter = options.onAfter;
 	  var onAnimating = options.onAnimating;
 
 	  var startTime = Date.now();
 	  var endTime = startTime + duration;
 	  var total = to - from;
-
-	  if (onBefore) {
-	    onBefore(elem);
-	  }
 
 	  requestAnimationFrame(loop);
 
@@ -499,6 +495,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var progress = tf((curTime - startTime) / duration);
 	      progress = total * progress + from;
 
+	      // 动画的 progress 可以超出0，1的值
 	      style(elem, kf, progress, true);
 
 	      if (onAnimating) {
@@ -525,25 +522,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// 处理animate 方法的默认参数
 	function setAnimateOptions(options) {
-	  options = options || {};
-	  var from = +options.from || 0;
-	  var to = options.to === undefined ? 1 : +options.to;
-	  var tf = options.tf || options.timingFunction;
+	  var defaultOptions = {
+	    from: 0,
+	    to: 1
+	  };
 
-	  if (Array.isArray(tf)) {
-	    tf = BezierEasing.apply(null, tf);
+	  var tf = options.timingFunction;
+
+	  // cubic-bezier values
+	  if ( Array.isArray(tf) ) {
+	    options.timingFunction = BezierEasing.apply(null, tf);
 	  } else {
-	    tf = BezierEasing.css[tf] || BezierEasing.css.ease;
+	    options.timingFunction = BezierEasing.css[tf] ||  // keywords
+	                             BezierEasing.css.ease;   // use ease as default value
 	  }
 
-	  return {
-	    from: from,
-	    to: to,
-	    tf: tf,
-	    onBefore: options.onBefore,
-	    onAfter: options.onAfter,
-	    onAnimating: options.onAnimating,
-	  };
+	  return Object.assign(defaultOptions, options);
 	}
 
 	module.exports = animate;
@@ -780,6 +774,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	            clearTimeout(id);
 	        };
 	}());
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	if (!Object.assign) {
+	  Object.defineProperty(Object, 'assign', {
+	    enumerable: false,
+	    configurable: true,
+	    writable: true,
+	    value: function(target) {
+	      'use strict';
+	      if (target === undefined || target === null) {
+	        throw new TypeError('Cannot convert first argument to object');
+	      }
+
+	      var to = Object(target);
+	      for (var i = 1; i < arguments.length; i++) {
+	        var nextSource = arguments[i];
+	        if (nextSource === undefined || nextSource === null) {
+	          continue;
+	        }
+	        nextSource = Object(nextSource);
+
+	        var keysArray = Object.keys(Object(nextSource));
+	        for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+	          var nextKey = keysArray[nextIndex];
+	          var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+	          if (desc !== undefined && desc.enumerable) {
+	            to[nextKey] = nextSource[nextKey];
+	          }
+	        }
+	      }
+	      return to;
+	    }
+	  });
+	}
 
 /***/ }
 /******/ ])

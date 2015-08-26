@@ -37,7 +37,9 @@ function isBundleItem(prop) {
 // 默认将transform 注册成bundle
 registerBundle({
   name: 'transform',
-  check: ['translate', 'rotate', 'scale', 'skew'],
+  check: function(prop) {
+    return prop.match(/translate|rotate|scale|skew/);
+  },
   combine: function(values) {
     var ret = values.map(function(item, index, array) {
       return item.prop + '(' + item.value + ')';

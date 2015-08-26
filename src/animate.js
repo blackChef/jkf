@@ -3,39 +3,32 @@ var BezierEasing = require('./bezier.js');
 var checkKf = require('./checkKf.js');
 
 
-// 让elem 沿着kf 做动画
+// 让 elem 沿着 kf 做动画
 // duration: 以毫秒为单位
 // options = {
 //   from: 起始点
 //   to：终点
 //       终点可以小于起始点，例如from: 1， to: 0
 //
-//   tf(timing function)：tf 和 timing function 都可以作为属性名，
-//                        支持数组形式的Bezier 曲线，
-//                        支持linear，ease，ease-in，ease-out，ease-in-out 关键字，默认为ease
-//   onBefore：在动画开始前执行的函数，参数是elem
+//   timing function：支持数组形式的 cubic-bezier values，
+//                    支持 linear，ease，ease-in，ease-out，ease-in-out 关键字，默认为ease
 //   onAnimating：在每一帧执行的函数，参数是elem
 //   onAfter：在动画结束后执行的函数，参数是elem
 // }
+
 function animate(elem, kf, duration, options) {
   options = setAnimateOptions(options);
   kf = checkKf(kf);
-
   var from = options.from;
   var to = options.to;
-  var tf = options.tf;
+  var tf = options.timingFunction;
 
-  var onBefore = options.onBefore;
   var onAfter = options.onAfter;
   var onAnimating = options.onAnimating;
 
   var startTime = Date.now();
   var endTime = startTime + duration;
   var total = to - from;
-
-  if (onBefore) {
-    onBefore(elem);
-  }
 
   requestAnimationFrame(loop);
 
@@ -45,6 +38,7 @@ function animate(elem, kf, duration, options) {
       var progress = tf((curTime - startTime) / duration);
       progress = total * progress + from;
 
+      // 动画的 progress 可以超出0，1的值
       style(elem, kf, progress, true);
 
       if (onAnimating) {
@@ -71,25 +65,22 @@ function animate(elem, kf, duration, options) {
 
 // 处理animate 方法的默认参数
 function setAnimateOptions(options) {
-  options = options || {};
-  var from = +options.from || 0;
-  var to = options.to === undefined ? 1 : +options.to;
-  var tf = options.tf || options.timingFunction;
+  var defaultOptions = {
+    from: 0,
+    to: 1
+  };
 
-  if (Array.isArray(tf)) {
-    tf = BezierEasing.apply(null, tf);
+  var tf = options.timingFunction;
+
+  // cubic-bezier values
+  if ( Array.isArray(tf) ) {
+    options.timingFunction = BezierEasing.apply(null, tf);
   } else {
-    tf = BezierEasing.css[tf] || BezierEasing.css.ease;
+    options.timingFunction = BezierEasing.css[tf] ||  // keywords
+                             BezierEasing.css.ease;   // use ease as default value
   }
 
-  return {
-    from: from,
-    to: to,
-    tf: tf,
-    onBefore: options.onBefore,
-    onAfter: options.onAfter,
-    onAnimating: options.onAnimating,
-  };
+  return Object.assign(defaultOptions, options);
 }
 
 module.exports = animate;
