@@ -19,13 +19,10 @@ function reverseKf(kf) {
   return ret;
 }
 
-var _jkf = {
+module.exports = {
   update: update,
   animate: animate,
   registerBundle: registerBundle,
   reverseKf: reverseKf,
   parse: parse
 };
-
-
-module.exports = _jkf;
