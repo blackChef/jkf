@@ -43,10 +43,8 @@ function step1(kf) {
       var valueNum = +value.match(/-?[\d\.]+/)[0];
       var valueUnit = value.replace(valueNum, '');
 
-      var retItem;
-      ret.some(function(item, index, array) {
+      var retItem = ret.find(function(item, index, array) {
         if (item.prop == prop) {
-          retItem = item;
           return true;
         }
       });

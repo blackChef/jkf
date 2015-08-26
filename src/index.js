@@ -4,7 +4,8 @@ var update = require('./update.js');
 var animate = require('./animate.js');
 var parse = require('./parser.js');
 
-require('./polyfill.js');
+require('./polyfills/arrayFind.js');
+require('./polyfills/requestAnimationFrame.js');
 
 // 可以把kf 反过来的工具函数
 function reverseKf(kf) {
