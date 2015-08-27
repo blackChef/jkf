@@ -1,4 +1,3 @@
-var prefix = require('./prefixHandler.js');
 
 // bundleProp 指的是由多个子属性组成的属性
 // 例如transform 由rotate，transform 等组成,

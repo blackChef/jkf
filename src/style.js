@@ -1,4 +1,3 @@
-var prefix = require('./prefixHandler.js');
 var isBundleItem = require('./bundle.js').isBundleItem;
 
 // 获取 progress 对应的值
