@@ -1,6 +1,6 @@
 var style = require('./style.js');
 var BezierEasing = require('./bezier.js');
-var parseKf = require('./parseKf.js');
+var parse = require('./parse.js');
 
 
 // duration: 以毫秒为单位
@@ -17,7 +17,7 @@ var parseKf = require('./parseKf.js');
 function animate(elem, kf, duration, options) {
   options = setAnimateOptions(options);
 
-  kf = parseKf(kf);
+  kf = parse(kf);
 
   var from = options.from;
   var to = options.to;
@@ -43,7 +43,7 @@ function animate(elem, kf, duration, options) {
 
       requestAnimationFrame(loop);
 
-      // 滚动、触摸等情况下，progress 值的变化并非是连续的，to 这个帧不一定正好能达到
+      // to 这个帧不一定正好能达到
       // 第一个大于等于 to 的帧被认为是 to
     } else {
       style(elem, kf, to, true);

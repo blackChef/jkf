@@ -12,42 +12,16 @@ var prefix = require('./prefixHandler.js');
 var bundleProps = [];
 
 function registerBundle(bundle) {
-  var _bundle = Object.create(bundle);
-  if (_bundle.prefix) {
-    _bundle.name = prefix(_bundle.name);
-  }
-  bundleProps.push(_bundle);
+  bundleProps.push( Object.create(bundle) );
 }
 
 // 检查该属性是某个bundle 的子属性
 // 如果是，将bundle 返回
 function isBundleItem(prop) {
   return bundleProps.find(function(item, index, array) {
-    var contain;
-    var check = item.check;
-    if (typeof check == 'function') {
-      contain = check(prop);
-    } else {
-      contain = check.indexOf(prop) != -1;
-    }
-    return contain;
+    return item.check(prop);
   });
 }
-
-// 默认将transform 注册成bundle
-registerBundle({
-  name: 'transform',
-  check: function(prop) {
-    return prop.match(/translate|rotate|scale|skew/);
-  },
-  combine: function(values) {
-    var ret = values.map(function(item, index, array) {
-      return item.prop + '(' + item.value + ')';
-    });
-    return ret.join(' ');
-  },
-  prefix: true
-});
 
 exports.registerBundle = registerBundle;
 exports.isBundleItem = isBundleItem;
