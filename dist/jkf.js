@@ -54,15 +54,18 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
+	__webpack_require__(6);
 	__webpack_require__(7);
 	__webpack_require__(8);
-	__webpack_require__(9);
 
-	var registerBundle = __webpack_require__(4).registerBundle;
+	var combination = __webpack_require__(3);
+	var registerCombination = combination.registerCombination;
+	var combinations = combination.combinations;
+
 	var update = __webpack_require__(1);
-	var animate = __webpack_require__(10);
-	var parse = __webpack_require__(5);
-	var prefix = __webpack_require__(3);
+	var animate = __webpack_require__(9);
+	var parse = __webpack_require__(4);
+	var prefix = __webpack_require__(11);
 
 
 	// 可以把kf 反过来的工具函数
@@ -77,7 +80,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	// 默认将 transform 注册成bundle
-	registerBundle({
+	registerCombination({
 	  name: prefix('transform'),
 	  check: function(prop) {
 	    return prop.match(/translate|rotate|scale|skew/);
@@ -94,10 +97,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  update: update,
 	  animate: animate,
 	  utils: {
+	    registerCombination: registerCombination,
 	    parse: parse,
 	    reverseKf: reverseKf,
 	    prefix: prefix
-	  }
+	  },
+	  _combinations: combinations,
 	};
 
 	module.exports = _jkf;
@@ -108,7 +113,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var style = __webpack_require__(2);
-	var parse = __webpack_require__(5);
+	var parse = __webpack_require__(4);
 
 
 	// 给定 progress，将 elem style 成 kf 中对应的状态
@@ -136,8 +141,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var prefix = __webpack_require__(3);
-	var isBundleItem = __webpack_require__(4).isBundleItem;
+	var isCombinationItem = __webpack_require__(3).isCombinationItem;
 
 	// 获取 progress 对应的值
 	function getValue(kfItem, progress) {
@@ -169,7 +173,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function style(elem, kf, progress) {
 
 	  // 保存属于某个 bundle 的属性
-	  var bundles = {};
+	  var combinations = {};
 
 	  // 遍历 kf，得到所有属性在该 progress 的值并应用
 	  [].forEach.call(kf, function(kfItem, index, array) {
@@ -177,10 +181,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var value = getValue(kfItem, progress);
 
 	    // 检查该属性是否属于某个bundle
-	    var bundle = isBundleItem(prop);
+	    var combination = isCombinationItem(prop);
 
-	    // 如果不是bundle，直接应用style
-	    if (!bundle) {
+	    // 如果不是combination，直接应用style
+	    if (!combination) {
 
 	      // zIndex 的值只能是整数
 	      if (prop == 'zIndex') {
@@ -190,19 +194,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	      elem.style[prop] = value;
 
 	    } else {
-	      var bundleName = bundle.name;
+	      var combinationName = combination.name;
 
-	      if (!bundles[bundleName]) {
-	        bundles[bundleName] = {
+	      if (!combinations[combinationName]) {
+	        combinations[combinationName] = {
 	          values: [{
 	            prop: prop,
 	            value: value
 	          }],
-	          combine: bundle.combine
+	          combine: combination.combine
 	        };
 
 	      } else {
-	        bundles[bundleName].values.push({
+	        combinations[combinationName].values.push({
 	          prop: prop,
 	          value: value
 	        });
@@ -211,8 +215,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 
 	  // 遍历完 kf 之后再应用 bundle 属性
-	  for (var prop in bundles) {
-	    var item = bundles[prop];
+	  for (var prop in combinations) {
+	    var item = combinations[prop];
 	    elem.style[prop] = item.combine(item.values);
 	  }
 	}
@@ -224,66 +228,37 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	
-	// 为属性舔加浏览器前缀，可能不适用于所有属性
-	function prefix(prop) {
-	  var ret;
+	// combinationProp 指的是由多个子属性组成的属性
+	// 例如transform 由rotate，transform 等组成,
+	// 可以自定义combination，例如将background-color 分拆成r, g, b
+	// combination: {
+	//  name: elem.style[name] = combinedValue 时使用
+	//  check: 检查某个属性是否属于该combination 的子属性。可以是函数或者数组
+	//  combine: 合并子属性的方法，elem.style[name] = combinedValue 时使用
+	// }
+	var combinationProps = [];
 
-	  var vendor = ['', 'webkit', 'moz', 'ms'];
-	  vendor.some(function(item, index, array) {
-	    var _prop = prop;
-	    if (item) {
-	      _prop = item + prop.charAt(0).toUpperCase() + prop.slice(1);
-	    }
-
-	    if (document.createElement('div').style[_prop] !== undefined) {
-	      ret = _prop;
-	      return true;
-	    }
-	  });
-
-	  return ret;
+	function registerCombination(combination) {
+	  combinationProps.push( Object.create(combination) );
 	}
 
-	module.exports = prefix;
+	// 检查该属性是某个combination 的子属性
+	// 如果是，将combination 返回
+	function isCombinationItem(prop) {
+	  return combinationProps.find(function(item, index, array) {
+	    return item.check(prop);
+	  });
+	}
+
+	exports.registerCombination = registerCombination;
+	exports.isCombinationItem = isCombinationItem;
+
 
 /***/ },
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var prefix = __webpack_require__(3);
-
-	// bundleProp 指的是由多个子属性组成的属性
-	// 例如transform 由rotate，transform 等组成,
-	// 可以自定义bundle，例如将background-color 分拆成r, g, b
-	// bundle: {
-	//  name: elem.style[name] = combinedValue 时使用
-	//  check: 检查某个属性是否属于该bundle 的子属性。可以是函数或者数组
-	//  combine: 合并子属性的方法，elem.style[name] = combinedValue 时使用
-	//  prefix: 如果为true，会调用prefix 方法，改写name 的值
-	// }
-	var bundleProps = [];
-
-	function registerBundle(bundle) {
-	  bundleProps.push( Object.create(bundle) );
-	}
-
-	// 检查该属性是某个bundle 的子属性
-	// 如果是，将bundle 返回
-	function isBundleItem(prop) {
-	  return bundleProps.find(function(item, index, array) {
-	    return item.check(prop);
-	  });
-	}
-
-	exports.registerBundle = registerBundle;
-	exports.isBundleItem = isBundleItem;
-
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var parser = __webpack_require__(6);
+	var parser = __webpack_require__(5);
 
 	module.exports = function(kf) {
 
@@ -303,7 +278,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 6 */
+/* 5 */
 /***/ function(module, exports) {
 
 	
@@ -443,7 +418,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports) {
 
 	
@@ -472,7 +447,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports) {
 
 	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -508,7 +483,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}());
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports) {
 
 	if (!Object.assign) {
@@ -545,12 +520,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var style = __webpack_require__(2);
-	var BezierEasing = __webpack_require__(11);
-	var parse = __webpack_require__(5);
+	var BezierEasing = __webpack_require__(10);
+	var parse = __webpack_require__(4);
 
 
 	// duration: 以毫秒为单位
@@ -628,7 +603,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = animate;
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports) {
 
 	/**
@@ -794,6 +769,33 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	module.exports = BezierEasing;
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	
+	// 为属性舔加浏览器前缀，可能不适用于所有属性
+	function prefix(prop) {
+	  var ret;
+
+	  var vendor = ['', 'webkit', 'moz', 'ms'];
+	  vendor.some(function(item, index, array) {
+	    var _prop = prop;
+	    if (item) {
+	      _prop = item + prop.charAt(0).toUpperCase() + prop.slice(1);
+	    }
+
+	    if (document.createElement('div').style[_prop] !== undefined) {
+	      ret = _prop;
+	      return true;
+	    }
+	  });
+
+	  return ret;
+	}
+
+	module.exports = prefix;
 
 /***/ }
 /******/ ])
