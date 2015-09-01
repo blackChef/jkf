@@ -2,7 +2,10 @@ require('./polyfills/arrayFind.js');
 require('./polyfills/requestAnimationFrame.js');
 require('./polyfills/objectAssign.js');
 
-var registerBundle = require('./bundle.js').registerBundle;
+var combination = require('./combination.js');
+var registerCombination = combination.registerCombination;
+var combinations = combination.combinations;
+
 var update = require('./update.js');
 var animate = require('./animate.js');
 var parse = require('./parse.js');
@@ -21,7 +24,7 @@ function reverseKf(kf) {
 }
 
 // 默认将 transform 注册成bundle
-registerBundle({
+registerCombination({
   name: prefix('transform'),
   check: function(prop) {
     return prop.match(/translate|rotate|scale|skew/);
@@ -38,10 +41,12 @@ var _jkf = {
   update: update,
   animate: animate,
   utils: {
+    registerCombination: registerCombination,
     parse: parse,
     reverseKf: reverseKf,
     prefix: prefix
-  }
+  },
+  _combinations: combinations,
 };
 
 module.exports = _jkf;

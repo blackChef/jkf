@@ -1,4 +1,4 @@
-var isBundleItem = require('./bundle.js').isBundleItem;
+var isCombinationItem = require('./combination.js').isCombinationItem;
 
 // 获取 progress 对应的值
 function getValue(kfItem, progress) {
@@ -30,7 +30,7 @@ function getValue(kfItem, progress) {
 function style(elem, kf, progress) {
 
   // 保存属于某个 bundle 的属性
-  var bundles = {};
+  var combinations = {};
 
   // 遍历 kf，得到所有属性在该 progress 的值并应用
   [].forEach.call(kf, function(kfItem, index, array) {
@@ -38,10 +38,10 @@ function style(elem, kf, progress) {
     var value = getValue(kfItem, progress);
 
     // 检查该属性是否属于某个bundle
-    var bundle = isBundleItem(prop);
+    var combination = isCombinationItem(prop);
 
-    // 如果不是bundle，直接应用style
-    if (!bundle) {
+    // 如果不是combination，直接应用style
+    if (!combination) {
 
       // zIndex 的值只能是整数
       if (prop == 'zIndex') {
@@ -51,19 +51,19 @@ function style(elem, kf, progress) {
       elem.style[prop] = value;
 
     } else {
-      var bundleName = bundle.name;
+      var combinationName = combination.name;
 
-      if (!bundles[bundleName]) {
-        bundles[bundleName] = {
+      if (!combinations[combinationName]) {
+        combinations[combinationName] = {
           values: [{
             prop: prop,
             value: value
           }],
-          combine: bundle.combine
+          combine: combination.combine
         };
 
       } else {
-        bundles[bundleName].values.push({
+        combinations[combinationName].values.push({
           prop: prop,
           value: value
         });
@@ -72,8 +72,8 @@ function style(elem, kf, progress) {
   });
 
   // 遍历完 kf 之后再应用 bundle 属性
-  for (var prop in bundles) {
-    var item = bundles[prop];
+  for (var prop in combinations) {
+    var item = combinations[prop];
     elem.style[prop] = item.combine(item.values);
   }
 }
