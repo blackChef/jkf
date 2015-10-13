@@ -1,5 +1,5 @@
 var style = require('./style.jsx');
-var BezierEasing = require('./bezier.jsx');
+var BezierEasing = require('bezier-easing');
 var parse = require('./parse.jsx');
 
 
@@ -36,7 +36,7 @@ function animate(elem, kf, duration, options) {
       var timeProgress = (curTime - startTime) / duration;
 
       // 经过 timingFunction 处理之后的 progress
-      var computedProgress = range * timingFunction(timeProgress) + from;
+      var computedProgress = range * timingFunction.get(timeProgress) + from;
 
       var realProgress = range * timeProgress + from;
 
@@ -67,7 +67,7 @@ function setAnimateOptions(options) {
 
   // cubic-bezier values
   if ( Array.isArray(tf) ) {
-    options.timingFunction = BezierEasing.apply(null, tf);
+    options.timingFunction = BezierEasing.call(null, tf);
   } else {
     options.timingFunction = BezierEasing.css[tf] ||  // keywords
                              BezierEasing.css.ease;   // 默认用 ease
