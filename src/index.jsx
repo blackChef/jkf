@@ -38,8 +38,8 @@ registerCombination({
 var _jkf = {
   update: update,
   animate: animate,
+  registerCombination: registerCombination,
   utils: {
-    registerCombination: registerCombination,
     parse: parse,
     reverseKf: reverseKf,
     prefix: prefix
