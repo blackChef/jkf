@@ -24,12 +24,12 @@ function reverseKf(kf) {
 // 默认将 transform 注册成bundle
 registerCombination({
   name: prefix('transform'),
-  check: function(prop) {
-    return prop.match(/translate|rotate|scale|skew/);
+  check: function(propName) {
+    return propName.match(/translate|rotate|scale|skew/);
   },
   combine: function(values) {
-    var ret = values.map(function(item, index, array) {
-      return item.prop + '(' + item.value + ')';
+    var ret = values.map(function(item) {
+      return item.propName + '(' + item.value + ')';
     });
     return ret.join(' ');
   }

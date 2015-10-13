@@ -31,21 +31,21 @@ function style(elem, kf, progress) {
 
   // 遍历 kf，得到所有属性在该 progress 的值并应用
   kf.forEach(function(kfItem) {
-    var { prop } = kfItem;
+    var { propName } = kfItem;
     var value = getValue(kfItem, progress);
 
     // 检查该属性是否属于某个bundle
-    var combination = isCombinationItem(prop);
+    var combination = isCombinationItem(propName);
 
     // 如果不是combination，直接应用style
     if (!combination) {
 
       // zIndex 的值只能是整数
-      if (prop == 'zIndex') {
+      if (propName == 'zIndex') {
         value = parseInt(value, 10);
       }
 
-      elem.style[prop] = value;
+      elem.style[propName] = value;
 
     // 是 combination 的属性，先保存，最后再应用
     } else {
@@ -54,14 +54,14 @@ function style(elem, kf, progress) {
       if (!combinations[combinationName]) {
         combinations[combinationName] = {
           values: [
-            { prop: prop, value: value }
+            { propName: propName, value: value }
           ],
           combine: combination.combine
         };
 
       } else {
         combinations[combinationName].values.push({
-          prop: prop,
+          propName: propName,
           value: value
         });
       }
@@ -69,9 +69,9 @@ function style(elem, kf, progress) {
   });
 
   // 遍历完 kf 之后再应用 combinations 属性
-  Object.keys(combinations).forEach(function(prop) {
-    var item = combinations[prop];
-    elem.style[prop] = item.combine(item.values);
+  Object.keys(combinations).forEach(function(propName) {
+    var item = combinations[propName];
+    elem.style[propName] = item.combine(item.values);
   });
 }
 

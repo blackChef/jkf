@@ -80,12 +80,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	// 默认将 transform 注册成bundle
 	registerCombination({
 	  name: prefix('transform'),
-	  check: function check(prop) {
-	    return prop.match(/translate|rotate|scale|skew/);
+	  check: function check(propName) {
+	    return propName.match(/translate|rotate|scale|skew/);
 	  },
 	  combine: function combine(values) {
-	    var ret = values.map(function (item, index, array) {
-	      return item.prop + '(' + item.value + ')';
+	    var ret = values.map(function (item) {
+	      return item.propName + '(' + item.value + ')';
 	    });
 	    return ret.join(' ');
 	  }
@@ -159,22 +159,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	//  name:
 	//  主属性名，elem.style[name] = combinedValue
 	//
-	//  check(subPropName) => bool:
+	//  check(propName) => bool:
 	//  检查某个属性是否是该 combination 的子属性
 	//
-	//  combine([{subPropName, value}...]) => combinedValue:
+	//  combine([{propName, value}...]) => combinedValue:
 	//  合并子属性的方法，elem.style[name] = combinedValue
 	// }
 	//
-	// 没有对 combination 是否已经注册做检查
+	// 不对 combination 是否已经注册做检查
 	function registerCombination(combination) {
 	  combinationProps.push(Object.create(combination));
 	}
 
 	// 检查该属性是某个 combination 的子属性
-	function isCombinationItem(prop) {
+	function isCombinationItem(propName) {
 	  return combinationProps.find(function (item) {
-	    return item.check(prop);
+	    return item.check(propName);
 	  });
 	}
 
@@ -252,22 +252,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // 遍历 kf，得到所有属性在该 progress 的值并应用
 	  kf.forEach(function (kfItem) {
-	    var prop = kfItem.prop;
+	    var propName = kfItem.propName;
 
 	    var value = getValue(kfItem, progress);
 
 	    // 检查该属性是否属于某个bundle
-	    var combination = isCombinationItem(prop);
+	    var combination = isCombinationItem(propName);
 
 	    // 如果不是combination，直接应用style
 	    if (!combination) {
 
 	      // zIndex 的值只能是整数
-	      if (prop == 'zIndex') {
+	      if (propName == 'zIndex') {
 	        value = parseInt(value, 10);
 	      }
 
-	      elem.style[prop] = value;
+	      elem.style[propName] = value;
 
 	      // 是 combination 的属性，先保存，最后再应用
 	    } else {
@@ -275,12 +275,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        if (!combinations[combinationName]) {
 	          combinations[combinationName] = {
-	            values: [{ prop: prop, value: value }],
+	            values: [{ propName: propName, value: value }],
 	            combine: combination.combine
 	          };
 	        } else {
 	          combinations[combinationName].values.push({
-	            prop: prop,
+	            propName: propName,
 	            value: value
 	          });
 	        }
@@ -288,9 +288,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 
 	  // 遍历完 kf 之后再应用 combinations 属性
-	  Object.keys(combinations).forEach(function (prop) {
-	    var item = combinations[prop];
-	    elem.style[prop] = item.combine(item.values);
+	  Object.keys(combinations).forEach(function (propName) {
+	    var item = combinations[propName];
+	    elem.style[propName] = item.combine(item.values);
 	  });
 	}
 
@@ -339,7 +339,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	// };
 
 	// step1 => [
-	//   { prop: 'rotate',
+	//   { propName: 'rotate',
 	//     unit: 'deg',
 	//     rule: [
 	//      { point: 0, value: 0 },
@@ -347,7 +347,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//      { point: 1, value: 360 }
 	//     ],
 	//   },
-	//   { prop: 'opacity',
+	//   { propName: 'opacity',
 	//     unit: '',
 	//     rule: [
 	//      { point: 0, value: 0 },
@@ -363,8 +363,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  points.forEach(function (point, index, array) {
 	    var rule = original[point];
 
-	    Object.keys(rule).forEach(function (prop) {
-	      var value = rule[prop] + '';
+	    Object.keys(rule).forEach(function (propName) {
+	      var value = rule[propName] + '';
 	      var valueNum = +value.match(/-?[\d\.]+/)[0];
 	      var valueUnit = value.replace(valueNum, '');
 
@@ -374,12 +374,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      };
 
 	      var retItem = ret.find(function (item) {
-	        return item.prop == prop;
+	        return item.propName == propName;
 	      });
 
 	      if (!retItem) {
 	        ret.push({
-	          prop: prop,
+	          propName: propName,
 	          unit: valueUnit,
 	          rule: [ruleItem]
 	        });
@@ -398,14 +398,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	// step2 => [
-	//   { prop: 'rotate',
+	//   { propName: 'rotate',
 	//     unit: 'deg',
 	//     rule: [
 	//       { startPoint: 0, endPoint: 0.7, fn: (progress) => value... },
 	//       { startPoint: 0.7, endPoint: 1, fn: (progress) => value... }
 	//     ],
 	//   },
-	//   { prop: 'opacity',
+	//   { propName: 'opacity',
 	//     unit: '',
 	//     rule: [
 	//       { startPoint: 0, endPoint: 1, fn: (progress) => value... }

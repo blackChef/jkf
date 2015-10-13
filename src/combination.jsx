@@ -10,22 +10,22 @@ var combinationProps = [];
 //  name:
 //  主属性名，elem.style[name] = combinedValue
 //
-//  check(subPropName) => bool:
+//  check(propName) => bool:
 //  检查某个属性是否是该 combination 的子属性
 //
-//  combine([{subPropName, value}...]) => combinedValue:
+//  combine([{propName, value}...]) => combinedValue:
 //  合并子属性的方法，elem.style[name] = combinedValue
 // }
 //
-// 没有对 combination 是否已经注册做检查
+// 不对 combination 是否已经注册做检查
 function registerCombination(combination) {
   combinationProps.push( Object.create(combination) );
 }
 
 
 // 检查该属性是某个 combination 的子属性
-function isCombinationItem(prop) {
-  return combinationProps.find( item => item.check(prop) );
+function isCombinationItem(propName) {
+  return combinationProps.find( item => item.check(propName) );
 }
 
 

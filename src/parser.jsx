@@ -15,7 +15,7 @@
 
 
 // step1 => [
-//   { prop: 'rotate',
+//   { propName: 'rotate',
 //     unit: 'deg',
 //     rule: [
 //      { point: 0, value: 0 },
@@ -23,7 +23,7 @@
 //      { point: 1, value: 360 }
 //     ],
 //   },
-//   { prop: 'opacity',
+//   { propName: 'opacity',
 //     unit: '',
 //     rule: [
 //      { point: 0, value: 0 },
@@ -37,8 +37,8 @@ function step1(original) {
   points.forEach(function(point, index, array) {
     var rule = original[point];
 
-    Object.keys(rule).forEach(function(prop) {
-      var value = rule[prop] + '';
+    Object.keys(rule).forEach(function(propName) {
+      var value = rule[propName] + '';
       var valueNum = +value.match(/-?[\d\.]+/)[0];
       var valueUnit = value.replace(valueNum, '');
 
@@ -47,11 +47,11 @@ function step1(original) {
         value: valueNum
       };
 
-      var retItem = ret.find( item => (item.prop == prop) );
+      var retItem = ret.find( item => (item.propName == propName) );
 
       if (!retItem) {
         ret.push({
-          prop: prop,
+          propName: propName,
           unit: valueUnit,
           rule: [ruleItem]
         });
@@ -72,14 +72,14 @@ function step1(original) {
 
 
 // step2 => [
-//   { prop: 'rotate',
+//   { propName: 'rotate',
 //     unit: 'deg',
 //     rule: [
 //       { startPoint: 0, endPoint: 0.7, fn: (progress) => value... },
 //       { startPoint: 0.7, endPoint: 1, fn: (progress) => value... }
 //     ],
 //   },
-//   { prop: 'opacity',
+//   { propName: 'opacity',
 //     unit: '',
 //     rule: [
 //       { startPoint: 0, endPoint: 1, fn: (progress) => value... }
