@@ -7,7 +7,7 @@ function update(elem, kf, progress, allowProgressOutOfRange = false) {
 
   kf = parse(kf);
 
-  // 滚动或者触摸时，progress 的变化是非连续的。0 和 1 两点很可能被跳过
+  // 实际使用时（滚动或者触摸），progress 的变化是非连续的。0 和 1 两点很可能被跳过
   // 所以默认情况下对 progress 进行限制
   if (!allowProgressOutOfRange) {
     if (progress < 0) {
