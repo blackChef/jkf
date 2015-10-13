@@ -206,7 +206,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }
 
-	  style(elem, kf, progress);
+	  requestAnimationFrame(function () {
+	    style(elem, kf, progress);
+	  });
 	}
 
 	module.exports = update;
@@ -459,7 +461,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	'use strict';
 
 	var style = __webpack_require__(4);
-	var BezierEasing = __webpack_require__(10);
+	var BezierEasing = __webpack_require__(8);
 	var parse = __webpack_require__(5);
 
 	// duration: 以毫秒为单位
@@ -478,14 +480,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	//
 	//   onEnd(elem)：在动画结束后执行的函数
 	// }
-	function animate(elem, kf, duration, options) {
-	  options = setAnimateOptions(options);
-	  var _options = options;
-	  var from = _options.from;
-	  var to = _options.to;
-	  var timingFunction = _options.timingFunction;
-	  var onUpdate = _options.onUpdate;
-	  var onEnd = _options.onEnd;
+	function animate(elem, kf, duration) {
+	  var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+
+	  var _setAnimateOptions = setAnimateOptions(options);
+
+	  var from = _setAnimateOptions.from;
+	  var to = _setAnimateOptions.to;
+	  var timingFunction = _setAnimateOptions.timingFunction;
+	  var onUpdate = _setAnimateOptions.onUpdate;
+	  var onEnd = _setAnimateOptions.onEnd;
 
 	  kf = parse(kf);
 
@@ -493,10 +497,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var endTime = startTime + duration;
 	  var range = to - from;
 
-	  requestAnimationFrame(loop);
+	  // 可以控制动画暂停，继续
+	  var isPaused = false;
+	  var controller = {
+	    pause: function pause() {
+	      isPaused = true;
+	      this.pauseTime = Date.now();
+	    },
+
+	    resume: function resume() {
+	      isPaused = false;
+	      loop(this.pauseTime, Date.now());
+	    },
+
+	    toggle: function toggle() {
+	      if (isPaused) {
+	        this.resume();
+	      } else {
+	        this.pause();
+	      }
+	    }
+	  };
 
 	  function loop() {
-	    var curTime = Date.now();
+	    var pauseTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+	    var resumeTime = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+
+	    if (isPaused) {
+	      return;
+	    }
+
+	    var curTime = Date.now() - resumeTime + pauseTime;
 	    if (curTime < endTime) {
 	      var timeProgress = (curTime - startTime) / duration;
 
@@ -508,7 +539,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // 动画的 progress 可以超出0，1的范围（反弹动画）
 	      style(elem, kf, computedProgress, true);
 	      onUpdate(elem, realProgress);
-	      requestAnimationFrame(loop);
+	      requestAnimationFrame(function () {
+	        loop(pauseTime, resumeTime);
+	      });
 
 	      // to 这个帧不一定正好能达到
 	      // 第一个大于等于 to 的帧被认为是 to
@@ -518,6 +551,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        onEnd(elem);
 	      }
 	  }
+
+	  requestAnimationFrame(function () {
+	    loop();
+	  });
+
+	  return controller;
 	}
 
 	function setAnimateOptions(options) {
@@ -544,36 +583,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = animate;
 
 /***/ },
-/* 8 */,
-/* 9 */
-/***/ function(module, exports) {
-
-	
-	// 为属性舔加浏览器前缀，可能不适用于所有属性
-	'use strict';
-
-	function prefix(prop) {
-	  var ret;
-	  var vendors = ['', 'webkit', 'moz', 'ms'];
-	  vendors.find(function (item) {
-	    var _prop = prop;
-	    if (item) {
-	      _prop = item + prop.charAt(0).toUpperCase() + prop.slice(1);
-	    }
-
-	    if (document.createElement('div').style[_prop] !== undefined) {
-	      ret = _prop;
-	      return true;
-	    }
-	  });
-
-	  return ret;
-	}
-
-	module.exports = prefix;
-
-/***/ },
-/* 10 */
+/* 8 */
 /***/ function(module, exports) {
 
 	/**
@@ -756,6 +766,34 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = BezierEasing;
 
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	
+	// 为属性舔加浏览器前缀，可能不适用于所有属性
+	'use strict';
+
+	function prefix(prop) {
+	  var ret;
+	  var vendors = ['', 'webkit', 'moz', 'ms'];
+	  vendors.find(function (item) {
+	    var _prop = prop;
+	    if (item) {
+	      _prop = item + prop.charAt(0).toUpperCase() + prop.slice(1);
+	    }
+
+	    if (document.createElement('div').style[_prop] !== undefined) {
+	      ret = _prop;
+	      return true;
+	    }
+	  });
+
+	  return ret;
+	}
+
+	module.exports = prefix;
 
 /***/ }
 /******/ ])

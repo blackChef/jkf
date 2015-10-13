@@ -17,7 +17,9 @@ function update(elem, kf, progress, allowProgressOutOfRange = false) {
     }
   }
 
-  style(elem, kf, progress);
+  requestAnimationFrame(function() {
+    style(elem, kf, progress);
+  });
 }
 
 module.exports = update;

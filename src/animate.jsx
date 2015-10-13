@@ -19,19 +19,42 @@ var parse = require('./parse.jsx');
 //
 //   onEnd(elem)：在动画结束后执行的函数
 // }
-function animate(elem, kf, duration, options) {
-  options = setAnimateOptions(options);
-  var { from, to, timingFunction, onUpdate, onEnd } = options;
+function animate(elem, kf, duration, options = {}) {
+  var { from, to, timingFunction, onUpdate, onEnd } = setAnimateOptions(options);
   kf = parse(kf);
 
   var startTime = Date.now();
   var endTime = startTime + duration;
   var range = to - from;
 
-  requestAnimationFrame(loop);
+  // 可以控制动画暂停，继续
+  var isPaused = false;
+  var controller = {
+    pause: function() {
+      isPaused = true;
+      this.pauseTime = Date.now();
+    },
 
-  function loop() {
-    var curTime = Date.now();
+    resume: function() {
+      isPaused = false;
+      loop(this.pauseTime, Date.now());
+    },
+
+    toggle: function() {
+      if (isPaused) {
+        this.resume();
+      }  else {
+        this.pause();
+      }
+    }
+  };
+
+  function loop(pauseTime = 0, resumeTime = 0) {
+    if (isPaused) {
+      return;
+    }
+
+    var curTime = Date.now() - resumeTime + pauseTime;
     if (curTime < endTime) {
       var timeProgress = (curTime - startTime) / duration;
 
@@ -43,7 +66,9 @@ function animate(elem, kf, duration, options) {
       // 动画的 progress 可以超出0，1的范围（反弹动画）
       style(elem, kf, computedProgress, true);
       onUpdate(elem, realProgress);
-      requestAnimationFrame(loop);
+      requestAnimationFrame(function() {
+        loop(pauseTime, resumeTime);
+      });
 
       // to 这个帧不一定正好能达到
       // 第一个大于等于 to 的帧被认为是 to
@@ -53,6 +78,13 @@ function animate(elem, kf, duration, options) {
       onEnd(elem);
     }
   }
+
+
+  requestAnimationFrame(function() {
+    loop();
+  });
+
+  return controller;
 }
 
 function setAnimateOptions(options) {
