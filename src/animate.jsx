@@ -15,13 +15,13 @@ var parse = require('./parse.jsx');
 //   支持数组形式的 cubic-bezier values
 //   支持 linear，ease，ease-in，ease-out，ease-in-out 五种关键字，默认为 ease
 //
-//   onAnimating(elem, progress)：在每一帧执行的函数
+//   onUpdate(elem, progress)：在每一帧执行的函数
 //
-//   onAfter：在动画结束后执行的函数，参数是 elem
+//   onEnd(elem)：在动画结束后执行的函数
 // }
 function animate(elem, kf, duration, options) {
   options = setAnimateOptions(options);
-  var { from, to, timingFunction, onAnimating, onAfter } = options;
+  var { from, to, timingFunction, onUpdate, onEnd } = options;
   kf = parse(kf);
 
   var startTime = Date.now();
@@ -42,15 +42,15 @@ function animate(elem, kf, duration, options) {
 
       // 动画的 progress 可以超出0，1的范围（反弹动画）
       style(elem, kf, computedProgress, true);
-      onAnimating(elem, realProgress);
+      onUpdate(elem, realProgress);
       requestAnimationFrame(loop);
 
       // to 这个帧不一定正好能达到
       // 第一个大于等于 to 的帧被认为是 to
     } else {
       style(elem, kf, to, true);
-      onAnimating(elem, to);
-      onAfter(elem);
+      onUpdate(elem, to);
+      onEnd(elem);
     }
   }
 }
@@ -59,8 +59,8 @@ function setAnimateOptions(options) {
   var defaultOptions = {
     from: 0,
     to: 1,
-    onAnimating: function() {},
-    onAfter: function() {}
+    onUpdate: function() {},
+    onEnd: function() {}
   };
 
   var tf = options.timingFunction;
