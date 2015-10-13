@@ -14,7 +14,7 @@
 // };
 
 
-// step1: [
+// step1 => [
 //   { prop: 'rotate',
 //     unit: 'deg',
 //     rule: [
@@ -31,7 +31,6 @@
 //     ]
 //   }
 // ]
-
 function step1(original) {
   var ret = [];
   var points = Object.keys(original).sort();
@@ -72,23 +71,21 @@ function step1(original) {
 }
 
 
-// fn 是属性在 startPoint 和 endPoint 之间线性变化的函数
-// step2: [
+// step2 => [
 //   { prop: 'rotate',
 //     unit: 'deg',
 //     rule: [
-//       { startPoint: 0, endPoint: 0.7, fn: function... },
-//       { startPoint: 0.7, endPoint: 1, fn: function... }
+//       { startPoint: 0, endPoint: 0.7, fn: (progress) => value... },
+//       { startPoint: 0.7, endPoint: 1, fn: (progress) => value... }
 //     ],
 //   },
 //   { prop: 'opacity',
 //     unit: '',
 //     rule: [
-//       { startPoint: 0, endPoint: 1, fn: function... }
+//       { startPoint: 0, endPoint: 1, fn: (progress) => value... }
 //     ]
 //   }
 // ]
-
 function step2(step1Ret) {
   return step1Ret.map(function(item, index, array) {
     item.rule = compileRule(item.rule);

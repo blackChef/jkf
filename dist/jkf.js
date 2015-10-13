@@ -70,7 +70,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	// 可以把kf 反过来的工具函数
 	function reverseKf(kf) {
 	  var ret = {};
-
 	  for (var point in kf) {
 	    ret[1 - point] = kf[point];
 	  }
@@ -148,23 +147,31 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	
 	// combinationProp 指的是由多个子属性组成的属性
-	// 例如transform 由rotate，transform 等组成,
-	// 可以自定义combination，例如将background-color 分拆成r, g, b
-	// combination: {
-	//  name: elem.style[name] = combinedValue 时使用
-	//  check: 检查某个属性是否属于该combination 的子属性
-	//  combine: 合并子属性的方法，elem.style[name] = combinedValue 时使用
-	// }
+	// 例如 transform 由 rotate，transform 等组成,
+	// 可以自定义 combination，例如将 background-color 分拆成r, g, b
+
+	// 存放注册的 combination
 	"use strict";
 
 	var combinationProps = [];
 
+	// combination: {
+	//  name:
+	//  主属性名，elem.style[name] = combinedValue
+	//
+	//  check(subPropName) => bool:
+	//  检查某个属性是否是该 combination 的子属性
+	//
+	//  combine([{subPropName, value}...]) => combinedValue:
+	//  合并子属性的方法，elem.style[name] = combinedValue
+	// }
+	//
+	// 没有对 combination 是否已经注册做检查
 	function registerCombination(combination) {
 	  combinationProps.push(Object.create(combination));
 	}
 
-	// 检查该属性是某个combination 的子属性
-	// 如果是，将combination 返回
+	// 检查该属性是某个 combination 的子属性
 	function isCombinationItem(prop) {
 	  return combinationProps.find(function (item) {
 	    return item.check(prop);
@@ -301,7 +308,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (Array.isArray(kf)) {
 	    return kf;
 	  } else {
-
 	    // kf 应该包括0，1两点
 	    if (!kf[0] || !kf[1]) {
 	      throw 'keyframes should contain 0 and 1';
@@ -330,7 +336,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//   }
 	// };
 
-	// step1: [
+	// step1 => [
 	//   { prop: 'rotate',
 	//     unit: 'deg',
 	//     rule: [
@@ -347,7 +353,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	//     ]
 	//   }
 	// ]
-
 	'use strict';
 
 	function step1(original) {
@@ -390,23 +395,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return ret;
 	}
 
-	// fn 是属性在 startPoint 和 endPoint 之间线性变化的函数
-	// step2: [
+	// step2 => [
 	//   { prop: 'rotate',
 	//     unit: 'deg',
 	//     rule: [
-	//       { startPoint: 0, endPoint: 0.7, fn: function... },
-	//       { startPoint: 0.7, endPoint: 1, fn: function... }
+	//       { startPoint: 0, endPoint: 0.7, fn: (progress) => value... },
+	//       { startPoint: 0.7, endPoint: 1, fn: (progress) => value... }
 	//     ],
 	//   },
 	//   { prop: 'opacity',
 	//     unit: '',
 	//     rule: [
-	//       { startPoint: 0, endPoint: 1, fn: function... }
+	//       { startPoint: 0, endPoint: 1, fn: (progress) => value... }
 	//     ]
 	//   }
 	// ]
-
 	function step2(step1Ret) {
 	  return step1Ret.map(function (item, index, array) {
 	    item.rule = compileRule(item.rule);
@@ -461,15 +464,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// duration: 以毫秒为单位
 	// options = {
-	//   from: 起始点
-	//   to：终点.终点可以小于起始点，例如 from: 1， to: 0
+	//   from
+	//   起始点
 	//
-	//   timing function：支持数组形式的 cubic-bezier values，
-	//                    支持 linear，ease，ease-in，ease-out，ease-in-out 关键字，默认为 ease
-	//   onAnimating：在每一帧执行的函数，参数是 elem, progress
+	//   to
+	//   终点。终点可以小于起始点，例如 from: 1， to: 0
+	//
+	//   timingFunction：
+	//   支持数组形式的 cubic-bezier values
+	//   支持 linear，ease，ease-in，ease-out，ease-in-out 五种关键字，默认为 ease
+	//
+	//   onAnimating(elem, progress)：在每一帧执行的函数
+	//
 	//   onAfter：在动画结束后执行的函数，参数是 elem
 	// }
-
 	function animate(elem, kf, duration, options) {
 	  options = setAnimateOptions(options);
 	  var _options = options;
@@ -512,7 +520,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}
 
-	// 处理animate 方法的默认参数
 	function setAnimateOptions(options) {
 	  var defaultOptions = {
 	    from: 0,
@@ -716,9 +723,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function prefix(prop) {
 	  var ret;
-
-	  var vendor = ['', 'webkit', 'moz', 'ms'];
-	  vendor.some(function (item, index, array) {
+	  var vendors = ['', 'webkit', 'moz', 'ms'];
+	  vendors.find(function (item) {
 	    var _prop = prop;
 	    if (item) {
 	      _prop = item + prop.charAt(0).toUpperCase() + prop.slice(1);

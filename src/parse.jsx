@@ -7,7 +7,6 @@ module.exports = function(kf) {
     return kf;
 
   } else {
-
     // kf 应该包括0，1两点
     if ( !kf[0] || !kf[1]) {
       throw('keyframes should contain 0 and 1');

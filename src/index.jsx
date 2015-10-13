@@ -14,7 +14,6 @@ var prefix = require('./prefixHandler.jsx');
 // 可以把kf 反过来的工具函数
 function reverseKf(kf) {
   var ret = {};
-
   for (var point in kf) {
     ret[1-point] = kf[point];
   }

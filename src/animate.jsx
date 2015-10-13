@@ -5,15 +5,20 @@ var parse = require('./parse.jsx');
 
 // duration: 以毫秒为单位
 // options = {
-//   from: 起始点
-//   to：终点.终点可以小于起始点，例如 from: 1， to: 0
+//   from
+//   起始点
 //
-//   timing function：支持数组形式的 cubic-bezier values，
-//                    支持 linear，ease，ease-in，ease-out，ease-in-out 关键字，默认为 ease
-//   onAnimating：在每一帧执行的函数，参数是 elem, progress
+//   to
+//   终点。终点可以小于起始点，例如 from: 1， to: 0
+//
+//   timingFunction：
+//   支持数组形式的 cubic-bezier values
+//   支持 linear，ease，ease-in，ease-out，ease-in-out 五种关键字，默认为 ease
+//
+//   onAnimating(elem, progress)：在每一帧执行的函数
+//
 //   onAfter：在动画结束后执行的函数，参数是 elem
 // }
-
 function animate(elem, kf, duration, options) {
   options = setAnimateOptions(options);
   var { from, to, timingFunction, onAnimating, onAfter } = options;
@@ -50,7 +55,6 @@ function animate(elem, kf, duration, options) {
   }
 }
 
-// 处理animate 方法的默认参数
 function setAnimateOptions(options) {
   var defaultOptions = {
     from: 0,
