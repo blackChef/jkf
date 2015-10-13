@@ -1,15 +1,14 @@
-require('./polyfills/arrayFind.js');
-require('./polyfills/requestAnimationFrame.js');
-require('./polyfills/objectAssign.js');
 
-var combination = require('./combination.js');
+require('./polyfills/requestAnimationFrame.jsx');
+
+var combination = require('./combination.jsx');
 var registerCombination = combination.registerCombination;
 var combinations = combination.combinations;
 
-var update = require('./update.js');
-var animate = require('./animate.js');
-var parse = require('./parse.js');
-var prefix = require('./prefixHandler.js');
+var update = require('./update.jsx');
+var animate = require('./animate.jsx');
+var parse = require('./parse.jsx');
+var prefix = require('./prefixHandler.jsx');
 
 
 // 可以把kf 反过来的工具函数

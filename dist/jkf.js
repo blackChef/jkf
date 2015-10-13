@@ -1,1 +1,741 @@
-!function(n,r){"object"==typeof exports&&"object"==typeof module?module.exports=r():"function"==typeof define&&define.amd?define(r):"object"==typeof exports?exports.Jkf=r():n.Jkf=r()}(this,function(){return function(n){function r(e){if(t[e])return t[e].exports;var i=t[e]={exports:{},id:e,loaded:!1};return n[e].call(i.exports,i,i.exports,r),i.loaded=!0,i.exports}var t={};return r.m=n,r.c=t,r.p="",r(0)}([function(n,r,t){function e(n){var r={};for(var t in n)r[1-t]=n[t];return r}t(7),t(9),t(8);var i=t(2),o=i.registerCombination,a=i.combinations,u=t(11),c=t(4),f=t(1),s=t(10);o({name:s("transform"),check:function(n){return n.match(/translate|rotate|scale|skew/)},combine:function(n){var r=n.map(function(n,r,t){return n.prop+"("+n.value+")"});return r.join(" ")}});var m={update:u,animate:c,utils:{registerCombination:o,parse:f,reverseKf:e,prefix:s},_combinations:a};n.exports=m},function(n,r,t){var e=t(6);n.exports=function(n){if(Array.isArray(n))return n;if(!n[0]||!n[1])throw"keyframes should contain 0 and 1";return e(n)}},function(n,r){function t(n){i.push(Object.create(n))}function e(n){return i.find(function(r,t,e){return r.check(n)})}var i=[];r.registerCombination=t,r.isCombinationItem=e},function(n,r,t){function e(n,r){var t,e=n.rule,i=n.unit;if(r>=1)t=e[e.length-1].fn(r);else if(0>r)t=e[0].fn(r);else{var o=[].find.call(e,function(n){return r>=n.startPoint&&r<n.endPoint});t=o.fn(r)}return t+i}function i(n,r,t){var i={};[].forEach.call(r,function(r,a,u){var c=r.prop,f=e(r,t),s=o(c);if(s){var m=s.name;i[m]?i[m].values.push({prop:c,value:f}):i[m]={values:[{prop:c,value:f}],combine:s.combine}}else"zIndex"==c&&(f=parseInt(f,10)),n.style[c]=f});for(var a in i){var u=i[a];n.style[a]=u.combine(u.values)}}var o=t(2).isCombinationItem;n.exports=i},function(n,r,t){function e(n,r,t,e){function a(){var i=Date.now();if(m>i){var u=(i-s)/t,v=l*e.timingFunction(u)+c,p=l*u+c;o(n,r,v,!0),e.onAnimating(n,p),requestAnimationFrame(a)}else o(n,r,f,!0),e.onAnimating(n,f),e.onAfter(n)}e=i(e),r=u(r);var c=e.from,f=e.to,s=Date.now(),m=s+t,l=f-c;requestAnimationFrame(a)}function i(n){var r={from:0,to:1,onAnimating:function(){},onAfter:function(){}},t=n.timingFunction;return Array.isArray(t)?n.timingFunction=a.apply(null,t):n.timingFunction=a.css[t]||a.css.ease,Object.assign(r,n)}var o=t(3),a=t(5),u=t(1);n.exports=e},function(n,r){var t=function(){function n(n,r,f,s){function m(n,r){return 1-3*r+3*n}function l(n,r){return 3*r-6*n}function v(n){return 3*n}function p(n,r,t){return((m(r,t)*n+l(r,t))*n+v(r))*n}function d(n,r,t){return 3*m(r,t)*n*n+2*l(r,t)*n+v(r)}function w(r,e){for(var i=0;t>i;++i){var o=d(e,n,f);if(0===o)return e;var a=p(e,n,f)-r;e-=a/o}return e}function g(){for(var r=0;a>r;++r)x[r]=p(r*u,n,f)}function b(r,t,e){var a,u,c=0;do u=t+(e-t)/2,a=p(u,n,f)-r,a>0?e=u:t=u;while(Math.abs(a)>i&&++c<o);return u}function h(r){for(var t=0,i=1,o=a-1;i!=o&&x[i]<=r;++i)t+=u;--i;var c=(r-x[i])/(x[i+1]-x[i]),s=t+c*u,m=d(s,n,f);return m>=e?w(r,s):0===m?s:b(r,t,t+u)}function y(){F=!0,(n!=r||f!=s)&&g()}if(4!==arguments.length)throw new Error("BezierEasing requires 4 arguments.");for(var A=0;4>A;++A)if("number"!=typeof arguments[A]||isNaN(arguments[A])||!isFinite(arguments[A]))throw new Error("BezierEasing arguments should be integers.");if(0>n||n>1||0>f||f>1)throw new Error("BezierEasing x values must be in [0, 1] range.");var x=c?new Float32Array(a):new Array(a),F=!1,j=function(t){return F||y(),n===r&&f===s?t:0===t?0:1===t?1:p(h(t),r,s)};j.getControlPoints=function(){return[{x:n,y:r},{x:f,y:s}]};var E="BezierEasing("+[n,r,f,s]+")";return j.toString=function(){return E},j}var r=window,t=4,e=.001,i=1e-7,o=10,a=11,u=1/(a-1),c="Float32Array"in r;return n.css={ease:n(.25,.1,.25,1),linear:n(0,0,1,1),"ease-in":n(.42,0,1,1),"ease-out":n(0,0,.58,1),"ease-in-out":n(.42,0,.58,1)},n}();n.exports=t},function(n,r){function t(n){var r=[],t=Object.keys(n).sort();return t.forEach(function(t,e,i){var o=n[t];for(var a in o){var u=o[a]+"",c=+u.match(/-?[\d\.]+/)[0],f=u.replace(c,""),s=r.find(function(n,r,t){return n.prop==a?!0:void 0}),m={point:+t,value:c};s?(s.rule.push(m),s.unit||(s.unit=f)):r.push({prop:a,unit:f,rule:[m]})}}),r}function e(n){return n.map(function(n,r,t){return n.rule=i(n.rule),n})}function i(n){var r=[];return n.forEach(function(t,e,i){var a=n[e+1];if(a){var u=t.point,c=a.point,f=o(u,t.value,c,a.value);r.push({startPoint:u,endPoint:c,fn:f})}}),r}function o(n,r,t,e){var i=(r-e)/(n-t),o=r-i*n;return function(n){return(i*n+o).toFixed(8)}}n.exports=function(n){return e(t(n))}},function(n,r){Array.prototype.find||(Array.prototype.find=function(n){if(null===this)throw new TypeError("Array.prototype.find called on null or undefined");if("function"!=typeof n)throw new TypeError("predicate must be a function");for(var r,t=Object(this),e=t.length>>>0,i=arguments[1],o=0;e>o;o++)if(r=t[o],n.call(i,r,o,t))return r;return void 0})},function(n,r){Object.assign||Object.defineProperty(Object,"assign",{enumerable:!1,configurable:!0,writable:!0,value:function(n){"use strict";if(void 0===n||null===n)throw new TypeError("Cannot convert first argument to object");for(var r=Object(n),t=1;t<arguments.length;t++){var e=arguments[t];if(void 0!==e&&null!==e){e=Object(e);for(var i=Object.keys(Object(e)),o=0,a=i.length;a>o;o++){var u=i[o],c=Object.getOwnPropertyDescriptor(e,u);void 0!==c&&c.enumerable&&(r[u]=e[u])}}}return r}})},function(n,r){!function(){for(var n=0,r=["ms","moz","webkit","o"],t=0;t<r.length&&!window.requestAnimationFrame;++t)window.requestAnimationFrame=window[r[t]+"RequestAnimationFrame"],window.cancelAnimationFrame=window[r[t]+"CancelAnimationFrame"]||window[r[t]+"CancelRequestAnimationFrame"];window.requestAnimationFrame||(window.requestAnimationFrame=function(r,t){var e=(new Date).getTime(),i=Math.max(0,16-(e-n)),o=window.setTimeout(function(){r(e+i)},i);return n=e+i,o}),window.cancelAnimationFrame||(window.cancelAnimationFrame=function(n){clearTimeout(n)})}()},function(n,r){function t(n){var r,t=["","webkit","moz","ms"];return t.some(function(t,e,i){var o=n;return t&&(o=t+n.charAt(0).toUpperCase()+n.slice(1)),void 0!==document.createElement("div").style[o]?(r=o,!0):void 0}),r}n.exports=t},function(n,r,t){function e(n,r,t,e){r=o(r),e=e||!1,e||(0>t?t=0:t>1&&(t=1)),i(n,r,t)}var i=t(3),o=t(1);n.exports=e}])});
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["Jkf"] = factory();
+	else
+		root["Jkf"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(1);
+
+	var combination = __webpack_require__(2);
+	var registerCombination = combination.registerCombination;
+	var combinations = combination.combinations;
+
+	var update = __webpack_require__(3);
+	var animate = __webpack_require__(7);
+	var parse = __webpack_require__(5);
+	var prefix = __webpack_require__(9);
+
+	// 可以把kf 反过来的工具函数
+	function reverseKf(kf) {
+	  var ret = {};
+
+	  for (var point in kf) {
+	    ret[1 - point] = kf[point];
+	  }
+
+	  return ret;
+	}
+
+	// 默认将 transform 注册成bundle
+	registerCombination({
+	  name: prefix('transform'),
+	  check: function check(prop) {
+	    return prop.match(/translate|rotate|scale|skew/);
+	  },
+	  combine: function combine(values) {
+	    var ret = values.map(function (item, index, array) {
+	      return item.prop + '(' + item.value + ')';
+	    });
+	    return ret.join(' ');
+	  }
+	});
+
+	var _jkf = {
+	  update: update,
+	  animate: animate,
+	  utils: {
+	    registerCombination: registerCombination,
+	    parse: parse,
+	    reverseKf: reverseKf,
+	    prefix: prefix
+	  },
+	  _combinations: combinations
+	};
+
+	module.exports = _jkf;
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+	// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+
+	// requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
+
+	// MIT license
+
+	'use strict';
+
+	(function () {
+	    var lastTime = 0;
+	    var vendors = ['ms', 'moz', 'webkit', 'o'];
+	    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+	        window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+	        window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
+	    }
+
+	    if (!window.requestAnimationFrame) window.requestAnimationFrame = function (callback, element) {
+	        var currTime = new Date().getTime();
+	        var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+	        var id = window.setTimeout(function () {
+	            callback(currTime + timeToCall);
+	        }, timeToCall);
+	        lastTime = currTime + timeToCall;
+	        return id;
+	    };
+
+	    if (!window.cancelAnimationFrame) window.cancelAnimationFrame = function (id) {
+	        clearTimeout(id);
+	    };
+	})();
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	
+	// combinationProp 指的是由多个子属性组成的属性
+	// 例如transform 由rotate，transform 等组成,
+	// 可以自定义combination，例如将background-color 分拆成r, g, b
+	// combination: {
+	//  name: elem.style[name] = combinedValue 时使用
+	//  check: 检查某个属性是否属于该combination 的子属性
+	//  combine: 合并子属性的方法，elem.style[name] = combinedValue 时使用
+	// }
+	"use strict";
+
+	var combinationProps = [];
+
+	function registerCombination(combination) {
+	  combinationProps.push(Object.create(combination));
+	}
+
+	// 检查该属性是某个combination 的子属性
+	// 如果是，将combination 返回
+	function isCombinationItem(prop) {
+	  return combinationProps.find(function (item) {
+	    return item.check(prop);
+	  });
+	}
+
+	exports.registerCombination = registerCombination;
+	exports.isCombinationItem = isCombinationItem;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var style = __webpack_require__(4);
+	var parse = __webpack_require__(5);
+
+	// 给定 progress，将 elem style 成 kf 中对应的状态
+	function update(elem, kf, progress) {
+	  var allowProgressOutOfRange = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+
+	  kf = parse(kf);
+
+	  // 滚动或者触摸时，progress 的变化是非连续的。0 和 1 两点很可能被跳过
+	  // 所以默认情况下对 progress 进行限制
+	  if (!allowProgressOutOfRange) {
+	    if (progress < 0) {
+	      progress = 0;
+	    } else if (progress > 1) {
+	      progress = 1;
+	    }
+	  }
+
+	  style(elem, kf, progress);
+	}
+
+	module.exports = update;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var isCombinationItem = __webpack_require__(2).isCombinationItem;
+
+	// 获取 progress 对应的值
+	function getValue(kfItem, progress) {
+	  var valueNum;
+	  var rule = kfItem.rule;
+	  var unit = kfItem.unit;
+
+	  // progress 大于等于1的值被带入最后一段 rule 里计算
+	  if (progress >= 1) {
+	    valueNum = rule[rule.length - 1].fn(progress);
+
+	    // progress 小于0的值被带入第一段 rule 里计算
+	  } else if (progress < 0) {
+	      valueNum = rule[0].fn(progress);
+	    } else {
+	      // 等于1的情况已经在前面解决了
+	      var mathedRule = rule.find(function (ruleItem) {
+	        return progress >= ruleItem.startPoint && progress < ruleItem.endPoint;
+	      });
+
+	      valueNum = mathedRule.fn(progress);
+	    }
+
+	  return valueNum + unit;
+	}
+
+	// 应用属性的值
+	function style(elem, kf, progress) {
+	  var combinations = {};
+
+	  // 遍历 kf，得到所有属性在该 progress 的值并应用
+	  kf.forEach(function (kfItem) {
+	    var prop = kfItem.prop;
+
+	    var value = getValue(kfItem, progress);
+
+	    // 检查该属性是否属于某个bundle
+	    var combination = isCombinationItem(prop);
+
+	    // 如果不是combination，直接应用style
+	    if (!combination) {
+
+	      // zIndex 的值只能是整数
+	      if (prop == 'zIndex') {
+	        value = parseInt(value, 10);
+	      }
+
+	      elem.style[prop] = value;
+
+	      // 是 combination 的属性，先保存，最后再应用
+	    } else {
+	        var combinationName = combination.name;
+
+	        if (!combinations[combinationName]) {
+	          combinations[combinationName] = {
+	            values: [{ prop: prop, value: value }],
+	            combine: combination.combine
+	          };
+	        } else {
+	          combinations[combinationName].values.push({
+	            prop: prop,
+	            value: value
+	          });
+	        }
+	      }
+	  });
+
+	  // 遍历完 kf 之后再应用 combinations 属性
+	  Object.keys(combinations).forEach(function (prop) {
+	    var item = combinations[prop];
+	    elem.style[prop] = item.combine(item.values);
+	  });
+	}
+
+	module.exports = style;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var parser = __webpack_require__(6);
+
+	module.exports = function (kf) {
+
+	  // 假定数组形式的 kf 都是已经 parse 之后的。直接返回
+	  if (Array.isArray(kf)) {
+	    return kf;
+	  } else {
+
+	    // kf 应该包括0，1两点
+	    if (!kf[0] || !kf[1]) {
+	      throw 'keyframes should contain 0 and 1';
+	    }
+
+	    return parser(kf);
+	  }
+	};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	
+	// original: {
+	//   0: {
+	//     rotate: 0, opacity: 0
+	//   },
+
+	//   0.7: {
+	//     rotate: '120deg'
+	//   },
+
+	//   1: {
+	//     rotate: '360deg', opacity: 1
+	//   }
+	// };
+
+	// step1: [
+	//   { prop: 'rotate',
+	//     unit: 'deg',
+	//     rule: [
+	//      { point: 0, value: 0 },
+	//      { point: 0.7, value: 120 },
+	//      { point: 1, value: 360 }
+	//     ],
+	//   },
+	//   { prop: 'opacity',
+	//     unit: '',
+	//     rule: [
+	//      { point: 0, value: 0 },
+	//      { point: 1, value: 1 },
+	//     ]
+	//   }
+	// ]
+
+	'use strict';
+
+	function step1(original) {
+	  var ret = [];
+	  var points = Object.keys(original).sort();
+	  points.forEach(function (point, index, array) {
+	    var rule = original[point];
+
+	    Object.keys(rule).forEach(function (prop) {
+	      var value = rule[prop] + '';
+	      var valueNum = +value.match(/-?[\d\.]+/)[0];
+	      var valueUnit = value.replace(valueNum, '');
+
+	      var ruleItem = {
+	        point: +point,
+	        value: valueNum
+	      };
+
+	      var retItem = ret.find(function (item) {
+	        return item.prop == prop;
+	      });
+
+	      if (!retItem) {
+	        ret.push({
+	          prop: prop,
+	          unit: valueUnit,
+	          rule: [ruleItem]
+	        });
+	      } else {
+	        retItem.rule.push(ruleItem);
+
+	        // 属性可能一开始是0，没有单位
+	        if (!retItem.unit) {
+	          retItem.unit = valueUnit;
+	        }
+	      }
+	    });
+	  });
+
+	  return ret;
+	}
+
+	// fn 是属性在 startPoint 和 endPoint 之间线性变化的函数
+	// step2: [
+	//   { prop: 'rotate',
+	//     unit: 'deg',
+	//     rule: [
+	//       { startPoint: 0, endPoint: 0.7, fn: function... },
+	//       { startPoint: 0.7, endPoint: 1, fn: function... }
+	//     ],
+	//   },
+	//   { prop: 'opacity',
+	//     unit: '',
+	//     rule: [
+	//       { startPoint: 0, endPoint: 1, fn: function... }
+	//     ]
+	//   }
+	// ]
+
+	function step2(step1Ret) {
+	  return step1Ret.map(function (item, index, array) {
+	    item.rule = compileRule(item.rule);
+	    return item;
+	  });
+	}
+
+	function compileRule(rule) {
+	  var ret = [];
+
+	  rule.forEach(function (curItem, index, array) {
+	    var nextItem = rule[index + 1];
+	    if (nextItem) {
+	      var startPoint = curItem.point;
+	      var endPoint = nextItem.point;
+	      var fn = setEquation(startPoint, curItem.value, endPoint, nextItem.value);
+	      ret.push({
+	        startPoint: startPoint,
+	        endPoint: endPoint,
+	        fn: fn
+	      });
+	    }
+	  });
+
+	  return ret;
+	}
+
+	// 根据两点得到线性方程
+	function setEquation(x1, y1, x2, y2) {
+	  var k = (y1 - y2) / (x1 - x2);
+	  var b = y1 - k * x1;
+
+	  return function (progress) {
+	    // toFixed(8) 避免出现科学计数法
+	    return (k * progress + b).toFixed(8);
+	  };
+	}
+
+	module.exports = function (original) {
+	  return step2(step1(original));
+	};
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var style = __webpack_require__(4);
+	var BezierEasing = __webpack_require__(8);
+	var parse = __webpack_require__(5);
+
+	// duration: 以毫秒为单位
+	// options = {
+	//   from: 起始点
+	//   to：终点.终点可以小于起始点，例如 from: 1， to: 0
+	//
+	//   timing function：支持数组形式的 cubic-bezier values，
+	//                    支持 linear，ease，ease-in，ease-out，ease-in-out 关键字，默认为 ease
+	//   onAnimating：在每一帧执行的函数，参数是 elem, progress
+	//   onAfter：在动画结束后执行的函数，参数是 elem
+	// }
+
+	function animate(elem, kf, duration, options) {
+	  options = setAnimateOptions(options);
+	  var _options = options;
+	  var from = _options.from;
+	  var to = _options.to;
+	  var timingFunction = _options.timingFunction;
+	  var onAnimating = _options.onAnimating;
+	  var onAfter = _options.onAfter;
+
+	  kf = parse(kf);
+
+	  var startTime = Date.now();
+	  var endTime = startTime + duration;
+	  var range = to - from;
+
+	  requestAnimationFrame(loop);
+
+	  function loop() {
+	    var curTime = Date.now();
+	    if (curTime < endTime) {
+	      var timeProgress = (curTime - startTime) / duration;
+
+	      // 经过 timingFunction 处理之后的 progress
+	      var computedProgress = range * timingFunction(timeProgress) + from;
+
+	      var realProgress = range * timeProgress + from;
+
+	      // 动画的 progress 可以超出0，1的范围（反弹动画）
+	      style(elem, kf, computedProgress, true);
+	      onAnimating(elem, realProgress);
+	      requestAnimationFrame(loop);
+
+	      // to 这个帧不一定正好能达到
+	      // 第一个大于等于 to 的帧被认为是 to
+	    } else {
+	        style(elem, kf, to, true);
+	        onAnimating(elem, to);
+	        onAfter(elem);
+	      }
+	  }
+	}
+
+	// 处理animate 方法的默认参数
+	function setAnimateOptions(options) {
+	  var defaultOptions = {
+	    from: 0,
+	    to: 1,
+	    onAnimating: function onAnimating() {},
+	    onAfter: function onAfter() {}
+	  };
+
+	  var tf = options.timingFunction;
+
+	  // cubic-bezier values
+	  if (Array.isArray(tf)) {
+	    options.timingFunction = BezierEasing.apply(null, tf);
+	  } else {
+	    options.timingFunction = BezierEasing.css[tf] || // keywords
+	    BezierEasing.css.ease; // 默认用 ease
+	  }
+
+	  return Object.assign({}, defaultOptions, options);
+	}
+
+	module.exports = animate;
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	/**
+	 * BezierEasing - use bezier curve for transition easing function
+	 * https://github.com/gre/bezier-easing
+	 * by Gaëtan Renaudeau 2014 – MIT License
+	 * Credits: is based on Firefox's nsSMILKeySpline.cpp
+	 * Usage:
+	 * var spline = BezierEasing(0.25, 0.1, 0.25, 1.0)
+	 * spline(x) => returns the easing value | x must be in [0, 1] range
+	 *
+	 */
+	"use strict";
+
+	var BezierEasing = (function () {
+	  var global = window;
+	  // These values are established by empiricism with tests (tradeoff: performance VS precision)
+	  var NEWTON_ITERATIONS = 4;
+	  var NEWTON_MIN_SLOPE = 0.001;
+	  var SUBDIVISION_PRECISION = 0.0000001;
+	  var SUBDIVISION_MAX_ITERATIONS = 10;
+
+	  var kSplineTableSize = 11;
+	  var kSampleStepSize = 1.0 / (kSplineTableSize - 1.0);
+
+	  var float32ArraySupported = ('Float32Array' in global);
+
+	  function BezierEasing(mX1, mY1, mX2, mY2) {
+	    // Validate arguments
+	    if (arguments.length !== 4) {
+	      throw new Error("BezierEasing requires 4 arguments.");
+	    }
+	    for (var i = 0; i < 4; ++i) {
+	      if (typeof arguments[i] !== "number" || isNaN(arguments[i]) || !isFinite(arguments[i])) {
+	        throw new Error("BezierEasing arguments should be integers.");
+	      }
+	    }
+	    if (mX1 < 0 || mX1 > 1 || mX2 < 0 || mX2 > 1) {
+	      throw new Error("BezierEasing x values must be in [0, 1] range.");
+	    }
+
+	    var mSampleValues = float32ArraySupported ? new Float32Array(kSplineTableSize) : new Array(kSplineTableSize);
+
+	    function A(aA1, aA2) {
+	      return 1.0 - 3.0 * aA2 + 3.0 * aA1;
+	    }
+
+	    function B(aA1, aA2) {
+	      return 3.0 * aA2 - 6.0 * aA1;
+	    }
+
+	    function C(aA1) {
+	      return 3.0 * aA1;
+	    }
+
+	    // Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
+	    function calcBezier(aT, aA1, aA2) {
+	      return ((A(aA1, aA2) * aT + B(aA1, aA2)) * aT + C(aA1)) * aT;
+	    }
+
+	    // Returns dx/dt given t, x1, and x2, or dy/dt given t, y1, and y2.
+	    function getSlope(aT, aA1, aA2) {
+	      return 3.0 * A(aA1, aA2) * aT * aT + 2.0 * B(aA1, aA2) * aT + C(aA1);
+	    }
+
+	    function newtonRaphsonIterate(aX, aGuessT) {
+	      for (var i = 0; i < NEWTON_ITERATIONS; ++i) {
+	        var currentSlope = getSlope(aGuessT, mX1, mX2);
+	        if (currentSlope === 0.0) return aGuessT;
+	        var currentX = calcBezier(aGuessT, mX1, mX2) - aX;
+	        aGuessT -= currentX / currentSlope;
+	      }
+	      return aGuessT;
+	    }
+
+	    function calcSampleValues() {
+	      for (var i = 0; i < kSplineTableSize; ++i) {
+	        mSampleValues[i] = calcBezier(i * kSampleStepSize, mX1, mX2);
+	      }
+	    }
+
+	    function binarySubdivide(aX, aA, aB) {
+	      var currentX,
+	          currentT,
+	          i = 0;
+	      do {
+	        currentT = aA + (aB - aA) / 2.0;
+	        currentX = calcBezier(currentT, mX1, mX2) - aX;
+	        if (currentX > 0.0) {
+	          aB = currentT;
+	        } else {
+	          aA = currentT;
+	        }
+	      } while (Math.abs(currentX) > SUBDIVISION_PRECISION && ++i < SUBDIVISION_MAX_ITERATIONS);
+	      return currentT;
+	    }
+
+	    function getTForX(aX) {
+	      var intervalStart = 0.0;
+	      var currentSample = 1;
+	      var lastSample = kSplineTableSize - 1;
+
+	      for (; currentSample != lastSample && mSampleValues[currentSample] <= aX; ++currentSample) {
+	        intervalStart += kSampleStepSize;
+	      }
+	      --currentSample;
+
+	      // Interpolate to provide an initial guess for t
+	      var dist = (aX - mSampleValues[currentSample]) / (mSampleValues[currentSample + 1] - mSampleValues[currentSample]);
+	      var guessForT = intervalStart + dist * kSampleStepSize;
+
+	      var initialSlope = getSlope(guessForT, mX1, mX2);
+	      if (initialSlope >= NEWTON_MIN_SLOPE) {
+	        return newtonRaphsonIterate(aX, guessForT);
+	      } else if (initialSlope === 0.0) {
+	        return guessForT;
+	      } else {
+	        return binarySubdivide(aX, intervalStart, intervalStart + kSampleStepSize);
+	      }
+	    }
+
+	    var _precomputed = false;
+
+	    function precompute() {
+	      _precomputed = true;
+	      if (mX1 != mY1 || mX2 != mY2) calcSampleValues();
+	    }
+
+	    var f = function f(aX) {
+	      if (!_precomputed) precompute();
+	      if (mX1 === mY1 && mX2 === mY2) return aX; // linear
+	      // Because JavaScript number are imprecise, we should guarantee the extremes are right.
+	      if (aX === 0) return 0;
+	      if (aX === 1) return 1;
+	      return calcBezier(getTForX(aX), mY1, mY2);
+	    };
+
+	    f.getControlPoints = function () {
+	      return [{
+	        x: mX1,
+	        y: mY1
+	      }, {
+	        x: mX2,
+	        y: mY2
+	      }];
+	    };
+	    var str = "BezierEasing(" + [mX1, mY1, mX2, mY2] + ")";
+	    f.toString = function () {
+	      return str;
+	    };
+
+	    return f;
+	  }
+
+	  // CSS mapping
+	  BezierEasing.css = {
+	    "ease": BezierEasing(0.25, 0.1, 0.25, 1.0),
+	    "linear": BezierEasing(0.00, 0.0, 1.00, 1.0),
+	    "ease-in": BezierEasing(0.42, 0.0, 1.00, 1.0),
+	    "ease-out": BezierEasing(0.00, 0.0, 0.58, 1.0),
+	    "ease-in-out": BezierEasing(0.42, 0.0, 0.58, 1.0)
+	  };
+
+	  return BezierEasing;
+	})();
+
+	module.exports = BezierEasing;
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	
+	// 为属性舔加浏览器前缀，可能不适用于所有属性
+	'use strict';
+
+	function prefix(prop) {
+	  var ret;
+
+	  var vendor = ['', 'webkit', 'moz', 'ms'];
+	  vendor.some(function (item, index, array) {
+	    var _prop = prop;
+	    if (item) {
+	      _prop = item + prop.charAt(0).toUpperCase() + prop.slice(1);
+	    }
+
+	    if (document.createElement('div').style[_prop] !== undefined) {
+	      ret = _prop;
+	      return true;
+	    }
+	  });
+
+	  return ret;
+	}
+
+	module.exports = prefix;
+
+/***/ }
+/******/ ])
+});
+;

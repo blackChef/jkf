@@ -4,7 +4,7 @@
 // 可以自定义combination，例如将background-color 分拆成r, g, b
 // combination: {
 //  name: elem.style[name] = combinedValue 时使用
-//  check: 检查某个属性是否属于该combination 的子属性。可以是函数或者数组
+//  check: 检查某个属性是否属于该combination 的子属性
 //  combine: 合并子属性的方法，elem.style[name] = combinedValue 时使用
 // }
 var combinationProps = [];
@@ -16,9 +16,7 @@ function registerCombination(combination) {
 // 检查该属性是某个combination 的子属性
 // 如果是，将combination 返回
 function isCombinationItem(prop) {
-  return combinationProps.find(function(item, index, array) {
-    return item.check(prop);
-  });
+  return combinationProps.find( (item) => item.check(prop) );
 }
 
 exports.registerCombination = registerCombination;

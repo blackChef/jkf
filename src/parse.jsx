@@ -1,4 +1,4 @@
-var parser = require('./parser.js');
+var parser = require('./parser.jsx');
 
 module.exports = function(kf) {
 

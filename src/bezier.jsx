@@ -1,7 +1,7 @@
 /**
  * BezierEasing - use bezier curve for transition easing function
+ * https://github.com/gre/bezier-easing
  * by Gaëtan Renaudeau 2014 – MIT License
- *
  * Credits: is based on Firefox's nsSMILKeySpline.cpp
  * Usage:
  * var spline = BezierEasing(0.25, 0.1, 0.25, 1.0)

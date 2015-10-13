@@ -1,6 +1,6 @@
-var style = require('./style.js');
-var BezierEasing = require('./bezier.js');
-var parse = require('./parse.js');
+var style = require('./style.jsx');
+var BezierEasing = require('./bezier.jsx');
+var parse = require('./parse.jsx');
 
 
 // duration: 以毫秒为单位
@@ -16,11 +16,8 @@ var parse = require('./parse.js');
 
 function animate(elem, kf, duration, options) {
   options = setAnimateOptions(options);
-
+  var { from, to, timingFunction, onAnimating, onAfter } = options;
   kf = parse(kf);
-
-  var from = options.from;
-  var to = options.to;
 
   var startTime = Date.now();
   var endTime = startTime + duration;
@@ -31,24 +28,24 @@ function animate(elem, kf, duration, options) {
   function loop() {
     var curTime = Date.now();
     if (curTime < endTime) {
-
       var timeProgress = (curTime - startTime) / duration;
-      var progress = range * options.timingFunction(timeProgress) + from;
+
+      // 经过 timingFunction 处理之后的 progress
+      var computedProgress = range * timingFunction(timeProgress) + from;
+
       var realProgress = range * timeProgress + from;
 
       // 动画的 progress 可以超出0，1的范围（反弹动画）
-      style(elem, kf, progress, true);
-
-      options.onAnimating(elem, realProgress);
-
+      style(elem, kf, computedProgress, true);
+      onAnimating(elem, realProgress);
       requestAnimationFrame(loop);
 
       // to 这个帧不一定正好能达到
       // 第一个大于等于 to 的帧被认为是 to
     } else {
       style(elem, kf, to, true);
-      options.onAnimating(elem, to);
-      options.onAfter(elem);
+      onAnimating(elem, to);
+      onAfter(elem);
     }
   }
 }
@@ -69,10 +66,10 @@ function setAnimateOptions(options) {
     options.timingFunction = BezierEasing.apply(null, tf);
   } else {
     options.timingFunction = BezierEasing.css[tf] ||  // keywords
-                             BezierEasing.css.ease;   // use ease as default value
+                             BezierEasing.css.ease;   // 默认用 ease
   }
 
-  return Object.assign(defaultOptions, options);
+  return Object.assign({}, defaultOptions, options);
 }
 
 module.exports = animate;

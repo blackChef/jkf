@@ -15,7 +15,7 @@
 
 
 // step1: [
-//   { prop: 'rotateY',
+//   { prop: 'rotate',
 //     unit: 'deg',
 //     rule: [
 //      { point: 0, value: 0 },
@@ -31,28 +31,24 @@
 //     ]
 //   }
 // ]
-function step1(kf) {
+
+function step1(original) {
   var ret = [];
-
-  var points = Object.keys(kf).sort();
+  var points = Object.keys(original).sort();
   points.forEach(function(point, index, array) {
-    var rule = kf[point];
+    var rule = original[point];
 
-    for (var prop in rule) {
+    Object.keys(rule).forEach(function(prop) {
       var value = rule[prop] + '';
       var valueNum = +value.match(/-?[\d\.]+/)[0];
       var valueUnit = value.replace(valueNum, '');
-
-      var retItem = ret.find(function(item, index, array) {
-        if (item.prop == prop) {
-          return true;
-        }
-      });
 
       var ruleItem = {
         point: +point,
         value: valueNum
       };
+
+      var retItem = ret.find( item => (item.prop == prop) );
 
       if (!retItem) {
         ret.push({
@@ -69,16 +65,16 @@ function step1(kf) {
           retItem.unit = valueUnit;
         }
       }
-    }
+    });
   });
 
   return ret;
 }
 
 
-// fn 是属性在startPoint 和 endPoint 直接变化的函数
+// fn 是属性在 startPoint 和 endPoint 之间线性变化的函数
 // step2: [
-//   { prop: 'rotateY',
+//   { prop: 'rotate',
 //     unit: 'deg',
 //     rule: [
 //       { startPoint: 0, endPoint: 0.7, fn: function... },
@@ -92,6 +88,7 @@ function step1(kf) {
 //     ]
 //   }
 // ]
+
 function step2(step1Ret) {
   return step1Ret.map(function(item, index, array) {
     item.rule = compileRule(item.rule);
@@ -130,6 +127,6 @@ function setEquation(x1, y1, x2, y2) {
   };
 }
 
-module.exports = function(kf) {
-  return step2(step1(kf));
+module.exports = function(original) {
+  return step2(step1(original));
 };

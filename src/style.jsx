@@ -1,10 +1,9 @@
-var isCombinationItem = require('./combination.js').isCombinationItem;
+var isCombinationItem = require('./combination.jsx').isCombinationItem;
 
 // 获取 progress 对应的值
 function getValue(kfItem, progress) {
-  var rule = kfItem.rule;
-  var valueUnit = kfItem.unit;
   var valueNum;
+  var { rule, unit } = kfItem;
 
   // progress 大于等于1的值被带入最后一段 rule 里计算
   if (progress >= 1) {
@@ -16,25 +15,23 @@ function getValue(kfItem, progress) {
 
   } else {
     // 等于1的情况已经在前面解决了
-    var mathedRule = [].find.call(rule, function(ruleItem) {
+    var mathedRule = rule.find(function(ruleItem) {
       return progress >= ruleItem.startPoint && progress < ruleItem.endPoint;
     });
 
     valueNum = mathedRule.fn(progress);
   }
 
-  return valueNum + valueUnit;
+  return valueNum + unit;
 }
 
 // 应用属性的值
 function style(elem, kf, progress) {
-
-  // 保存属于某个 bundle 的属性
   var combinations = {};
 
   // 遍历 kf，得到所有属性在该 progress 的值并应用
-  [].forEach.call(kf, function(kfItem, index, array) {
-    var prop = kfItem.prop;
+  kf.forEach(function(kfItem) {
+    var { prop } = kfItem;
     var value = getValue(kfItem, progress);
 
     // 检查该属性是否属于某个bundle
@@ -50,15 +47,15 @@ function style(elem, kf, progress) {
 
       elem.style[prop] = value;
 
+    // 是 combination 的属性，先保存，最后再应用
     } else {
       var combinationName = combination.name;
 
       if (!combinations[combinationName]) {
         combinations[combinationName] = {
-          values: [{
-            prop: prop,
-            value: value
-          }],
+          values: [
+            { prop: prop, value: value }
+          ],
           combine: combination.combine
         };
 
@@ -71,11 +68,11 @@ function style(elem, kf, progress) {
     }
   });
 
-  // 遍历完 kf 之后再应用 bundle 属性
-  for (var prop in combinations) {
+  // 遍历完 kf 之后再应用 combinations 属性
+  Object.keys(combinations).forEach(function(prop) {
     var item = combinations[prop];
     elem.style[prop] = item.combine(item.values);
-  }
+  });
 }
 
 module.exports = style;
