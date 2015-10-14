@@ -499,13 +499,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // 可以控制动画暂停，继续
 	  var isPaused = false;
+	  var isEnd = false;
 	  var controller = {
 	    pause: function pause() {
+	      if (isPaused) {
+	        return;
+	      }
 	      isPaused = true;
 	      this.pauseTime = Date.now();
 	    },
 
 	    resume: function resume() {
+	      if (!isPaused || isEnd) {
+	        return;
+	      }
 	      isPaused = false;
 	      loop(this.pauseTime, Date.now());
 	    },
@@ -549,6 +556,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        style(elem, kf, to, true);
 	        onUpdate(elem, to);
 	        onEnd(elem);
+	        isEnd = true;
 	      }
 	  }
 
