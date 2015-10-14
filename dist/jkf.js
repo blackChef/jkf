@@ -310,9 +310,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (Array.isArray(kf)) {
 	    return kf;
 	  } else {
-	    // kf 应该包括0，1两点
-	    if (!kf[0] || !kf[1]) {
-	      throw 'keyframes should contain 0 and 1';
+	    var points = Object.keys(kf).sort();
+	    if (+points[0] !== 0 || +points[points.length - 1] !== 1) {
+	      throw 'bad keyframes';
 	    }
 
 	    return parser(kf);
