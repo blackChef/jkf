@@ -502,7 +502,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var isEnd = false;
 	  var controller = {
 	    pause: function pause() {
-	      if (isPaused) {
+	      if (isPaused || isEnd) {
 	        return;
 	      }
 	      isPaused = true;
