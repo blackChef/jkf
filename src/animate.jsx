@@ -32,7 +32,7 @@ function animate(elem, kf, duration, options = {}) {
   var isEnd = false;
   var controller = {
     pause: function() {
-      if (isPaused) {
+      if (isPaused || isEnd) {
         return;
       }
       isPaused = true;
