@@ -501,6 +501,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var isPaused = false;
 	  var isEnd = false;
 	  var controller = {
+	    pauseTime: 0,
+	    pausedDuration: 0,
+
 	    pause: function pause() {
 	      if (isPaused || isEnd) {
 	        return;
@@ -514,7 +517,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return;
 	      }
 	      isPaused = false;
-	      loop(this.pauseTime, Date.now());
+	      this.pausedDuration += Date.now() - this.pauseTime;
+	      loop(this.pausedDuration);
 	    },
 
 	    toggle: function toggle() {
@@ -527,14 +531,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  function loop() {
-	    var pauseTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
-	    var resumeTime = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+	    var pausedDuration = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
 
 	    if (isPaused) {
 	      return;
 	    }
 
-	    var curTime = Date.now() - resumeTime + pauseTime;
+	    var curTime = Date.now() - pausedDuration;
 	    if (curTime < endTime) {
 	      var timeProgress = (curTime - startTime) / duration;
 
@@ -547,7 +550,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      style(elem, kf, computedProgress, true);
 	      onUpdate(elem, realProgress);
 	      requestAnimationFrame(function () {
-	        loop(pauseTime, resumeTime);
+	        loop(pausedDuration);
 	      });
 
 	      // to 这个帧不一定正好能达到
