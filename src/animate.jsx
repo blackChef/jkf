@@ -31,6 +31,9 @@ function animate(elem, kf, duration, options = {}) {
   var isPaused = false;
   var isEnd = false;
   var controller = {
+    pauseTime: 0,
+    pausedDuration: 0,
+
     pause: function() {
       if (isPaused || isEnd) {
         return;
@@ -44,7 +47,8 @@ function animate(elem, kf, duration, options = {}) {
         return;
       }
       isPaused = false;
-      loop(this.pauseTime, Date.now());
+      this.pausedDuration += Date.now() - this.pauseTime;
+      loop(this.pausedDuration);
     },
 
     toggle: function() {
@@ -56,12 +60,12 @@ function animate(elem, kf, duration, options = {}) {
     }
   };
 
-  function loop(pauseTime = 0, resumeTime = 0) {
+  function loop(pausedDuration = 0) {
     if (isPaused) {
       return;
     }
 
-    var curTime = Date.now() - resumeTime + pauseTime;
+    var curTime = Date.now() - pausedDuration;
     if (curTime < endTime) {
       var timeProgress = (curTime - startTime) / duration;
 
@@ -74,7 +78,7 @@ function animate(elem, kf, duration, options = {}) {
       style(elem, kf, computedProgress, true);
       onUpdate(elem, realProgress);
       requestAnimationFrame(function() {
-        loop(pauseTime, resumeTime);
+        loop(pausedDuration);
       });
 
       // to 这个帧不一定正好能达到
