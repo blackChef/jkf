@@ -11,6 +11,7 @@ This is a keyframes rule that jkf use:
     }
 
 It's a plain javascript object. It looks like a css keyframes rule.
+
 Notice that the key is a decimal instead of percentage, the property name is in camel case.
 
 ## Combinations
