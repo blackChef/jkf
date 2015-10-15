@@ -57,15 +57,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	'use strict';
 
 	__webpack_require__(1);
+	__webpack_require__(2).polyfill();
+	__webpack_require__(3);
 
-	var combination = __webpack_require__(2);
+	var combination = __webpack_require__(4);
 	var registerCombination = combination.registerCombination;
 	var combinations = combination.combinations;
 
-	var update = __webpack_require__(3);
-	var animate = __webpack_require__(7);
-	var parse = __webpack_require__(5);
-	var prefix = __webpack_require__(9);
+	var update = __webpack_require__(5);
+	var animate = __webpack_require__(9);
+	var parse = __webpack_require__(7);
+	var prefix = __webpack_require__(11);
 
 	// 可以把kf 反过来的工具函数
 	function reverseKf(kf) {
@@ -109,6 +111,97 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ function(module, exports) {
 
+	// Array.prototype.find - MIT License (c) 2013 Paul Miller <http://paulmillr.com>
+	// For all details and docs: https://github.com/paulmillr/array.prototype.find
+	// Fixes and tests supplied by Duncan Hall <http://duncanhall.net> 
+	(function(globals){
+	  if (Array.prototype.find) return;
+
+	  var find = function(predicate) {
+	    var list = Object(this);
+	    var length = list.length < 0 ? 0 : list.length >>> 0; // ES.ToUint32;
+	    if (length === 0) return undefined;
+	    if (typeof predicate !== 'function' || Object.prototype.toString.call(predicate) !== '[object Function]') {
+	      throw new TypeError('Array#find: predicate must be a function');
+	    }
+	    var thisArg = arguments[1];
+	    for (var i = 0, value; i < length; i++) {
+	      value = list[i];
+	      if (predicate.call(thisArg, value, i, list)) return value;
+	    }
+	    return undefined;
+	  };
+
+	  if (Object.defineProperty) {
+	    try {
+	      Object.defineProperty(Array.prototype, 'find', {
+	        value: find, configurable: true, enumerable: false, writable: true
+	      });
+	    } catch(e) {}
+	  }
+
+	  if (!Array.prototype.find) {
+	    Array.prototype.find = find;
+	  }
+	})(this);
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	/**
+	 * Code refactored from Mozilla Developer Network:
+	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+	 */
+
+	'use strict';
+
+	function assign(target, firstSource) {
+	  if (target === undefined || target === null) {
+	    throw new TypeError('Cannot convert first argument to object');
+	  }
+
+	  var to = Object(target);
+	  for (var i = 1; i < arguments.length; i++) {
+	    var nextSource = arguments[i];
+	    if (nextSource === undefined || nextSource === null) {
+	      continue;
+	    }
+
+	    var keysArray = Object.keys(Object(nextSource));
+	    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+	      var nextKey = keysArray[nextIndex];
+	      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+	      if (desc !== undefined && desc.enumerable) {
+	        to[nextKey] = nextSource[nextKey];
+	      }
+	    }
+	  }
+	  return to;
+	}
+
+	function polyfill() {
+	  if (!Object.assign) {
+	    Object.defineProperty(Object, 'assign', {
+	      enumerable: false,
+	      configurable: true,
+	      writable: true,
+	      value: assign
+	    });
+	  }
+	}
+
+	module.exports = {
+	  assign: assign,
+	  polyfill: polyfill
+	};
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
 	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 	// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
 
@@ -142,7 +235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-/* 2 */
+/* 4 */
 /***/ function(module, exports) {
 
 	
@@ -182,13 +275,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.isCombinationItem = isCombinationItem;
 
 /***/ },
-/* 3 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var style = __webpack_require__(4);
-	var parse = __webpack_require__(5);
+	var style = __webpack_require__(6);
+	var parse = __webpack_require__(7);
 
 	// 给定 progress，将 elem style 成 kf 中对应的状态
 	function update(elem, kf, progress) {
@@ -214,12 +307,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = update;
 
 /***/ },
-/* 4 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var isCombinationItem = __webpack_require__(2).isCombinationItem;
+	var isCombinationItem = __webpack_require__(4).isCombinationItem;
 
 	// 获取 progress 对应的值
 	function getValue(kfItem, progress) {
@@ -297,12 +390,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = style;
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var parser = __webpack_require__(6);
+	var parser = __webpack_require__(8);
 
 	module.exports = function (kf) {
 
@@ -320,7 +413,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports) {
 
 	
@@ -455,14 +548,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var style = __webpack_require__(4);
-	var BezierEasing = __webpack_require__(8);
-	var parse = __webpack_require__(5);
+	var style = __webpack_require__(6);
+	var BezierEasing = __webpack_require__(10);
+	var parse = __webpack_require__(7);
 
 	// duration: 以毫秒为单位
 	// options = {
@@ -599,7 +692,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = animate;
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports) {
 
 	/**
@@ -784,7 +877,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports) {
 
 	

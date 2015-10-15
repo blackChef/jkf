@@ -1,5 +1,7 @@
-
+require('array.prototype.find');
+require('es6-object-assign').polyfill();
 require('./polyfills/requestAnimationFrame.jsx');
+
 
 var combination = require('./combination.jsx');
 var registerCombination = combination.registerCombination;

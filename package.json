@@ -23,9 +23,11 @@
   },
   "homepage": "https://github.com/blackChef/jkf#readme",
   "dependencies": {
+    "array.prototype.find": "^1.0.0",
     "babel-core": "^5.8.25",
     "babel-loader": "^5.3.2",
     "bezier-easing": "^1.1.1",
+    "es6-object-assign": "^1.0.1",
     "webpack": "^1.12.2"
   }
 }
