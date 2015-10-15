@@ -1,0 +1,37 @@
+<h1 id="jkf">Jkf</h1>
+<p>A javascript animation library that use css-keyframes-animation syntax.</p>
+<p><a href="http://codepen.io/collection/AZMqqO/">demos</a></p>
+<h2 id="keyframes">Keyframes</h2>
+<p>这是在 jkf 里使用的 keyframes:</p>
+<pre><code>{
+    0: { left: 0, borderRadius: 0 },
+    0.5: { left: &#39;30px&#39; },
+    1: { left: &#39;100px&#39;, borderRadius: &#39;50%&#39; }
+}
+</code></pre><p>它是一个长得很像 css-keyframes 的 javascript object。值得注意的是:</p>
+<ul>
+<li>描述时间点的 key 是小数而不是百分数</li>
+<li>属性名是驼峰式的</li>
+<li>属性值为 0 时可以不加单位（百分号在这里被当作单位）</li>
+</ul>
+<h2 id="combinations">Combinations</h2>
+<p><code>transform: translateX(0) rotateZ(10deg) scale(1.2)</code></p>
+<p>transform 可以被当作由 translateX, rotateZ, scale 三个子属性组成。我们把像这样能拆分成多个子属性的属性叫做 combination。</p>
+<p>combination 的子属性未必是要“真实”存在的。<code>background-color: rgb(0, 0, 0)</code> 可以认为 background-color 是由 r, g, b 三个子属性组成。</p>
+<p>jkf 提供了 <code>Jkf.registerCombination</code> 方法，允许你自定义 combination。</p>
+<p>因为 transform 被广泛应用，jkf 预先把它注册成了 combination。你可以像这样在 keyframes 里使用 transform 了：</p>
+<pre><code>{
+  0: { translateX: 0, rotateZ: 0, borderRadius: 0, opacity: 1 },
+  0.5: { borderRadius: &#39;50%&#39;, opacity: 0.5 },
+  1: { translateX: &#39;100%&#39;, rotateZ: &#39;360deg&#39;, borderRadius: 0, opacity: 1 }
+};
+</code></pre><h2 id="usage">Usage</h2>
+<h3 id="jkf-update-elem-keyframes-progress-">Jkf.update(elem, keyframes, progress)</h3>
+<p>Description: 给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">demo</a></p>
+<ul>
+<li>elem: dom 元素</li>
+<li>keyframes: Jkf 使用的 keyframes rull</li>
+<li>progress: 一个 0 ~ 1 之间的小数</li>
+</ul>
+<h3 id="jkf-animate">Jkf.animate</h3>
+<h3 id="jkf-utils">Jkf.utils</h3>
