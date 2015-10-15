@@ -1,7 +1,6 @@
 # Jkf
-A javascript animation library that use css-keyframes-animation syntax.
+A javascript animation library that use css-keyframes-animation syntax. <a href="http://codepen.io/collection/AZMqqO/">demos</a>
 
-<a href="http://codepen.io/collection/AZMqqO/">demos</a>
 
 
 ## Keyframes
@@ -19,6 +18,7 @@ A javascript animation library that use css-keyframes-animation syntax.
  - 属性值为 0 时可以不加单位（百分号在这里被当作单位）
 
 
+
 ## Combinations
 `transform: translateX(0) rotateZ(10deg) scale(1.2)`
 
@@ -32,7 +32,7 @@ combination 的子属性未必是要“真实”存在的。
 
 Jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination。
 
-因为 transform 被广泛应用，Jkf 预先把它注册成了 combination。你可以像这样在 keyframes 里使用 transform 了：
+因为 transform 被广泛应用，Jkf 预先把它注册成了 combination。你可以像这样在 keyframes 里使用 transform 了:
 
     {
       0: { translateX: 0, rotateZ: 0, borderRadius: 0, opacity: 1 },
@@ -42,19 +42,47 @@ Jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination�
 
 
 
-
 ## Usage
 
-### Jkf.update(elem, keyframes, progress)
-Description: 给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">demo</a>
+#### Jkf.update(elem, keyframes, progress)
+给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">demo</a>
 
- - elem: dom 元素
- - keyframes: Jkf 使用的 keyframes rule
- - progress: 一个 0 ~ 1 之间的小数
+ - elem ( type: dom ): 要操作的元素
+
+ - keyframes ( type: object ): Jkf 使用的 keyframes rule
+
+ - progress ( type: number ): 一个 0 ~ 1 之间的小数
 
 
 
-### Jkf.animate
+#### Jkf.animate(elem, keyframes, duration [, options]) => controller
+进行一段基于 keyframes 的动画。通过函数返回的 controller，可以对已经开始的动画进行控制。<a href="http://codepen.io/chef/pen/RWLwOX">demo</a>
 
-### Jkf.utils
+ - elem ( type: dom ): 要操作的元素
+
+ - keyframes ( type: object ): Jkf 使用的 keyframes rule
+
+ - duration ( type: number ): 动画时间，以 ms 为单位
+
+ - options ( type: object ) : 一个 javascript 对象，其中的所有项都是可选的
+
+  - from ( type: number, default: 0 ): 设定动画的起始点
+
+  - to ( type: number, default: 1 ): 设定动画的结束点。to 不需要大于 from，<a href="http://codepen.io/chef/pen/YyrYYP">`{ from: 1, to: 0 }`</a> 是允许的
+
+  - timingFunction ( type: array | string, default: 'ease' ): 支持数组形式的 cubic-bezier values，支持 linear，ease，ease-in，ease-out，ease-in-out 五种关键字
+
+  - onUpdate ( type: function, params: [elem, progress] ): 动画每一次 update 时执行的 callback。elem 和当前的 progress 被传入函数。
+
+  - onEnd ( type: function, params: [elem] ): 动画结束后执行的 callback。elem 被传入函数。
+
+ - controller ( type: object ): 可以对已经开始的动画进行控制。
+
+  - controller.pause(): 暂停
+
+  - controller.resume(): 继续
+
+  - controller.toggler(): 切换暂停或者继续
+
+
 

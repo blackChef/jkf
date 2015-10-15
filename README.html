@@ -1,6 +1,5 @@
 <h1 id="jkf">Jkf</h1>
-<p>A javascript animation library that use css-keyframes-animation syntax.</p>
-<p><a href="http://codepen.io/collection/AZMqqO/">demos</a></p>
+<p>A javascript animation library that use css-keyframes-animation syntax. <a href="http://codepen.io/collection/AZMqqO/">demos</a></p>
 <h2 id="keyframes">Keyframes</h2>
 <p>这是在 Jkf 里使用的 keyframes:</p>
 <pre><code>{
@@ -21,19 +20,54 @@
 <p><code>background-color: rgb(0, 0, 0)</code></p>
 <p>这里可以认为 background-color 是由 r, g, b 三个子属性组成。</p>
 <p>Jkf 提供了 <code>Jkf.registerCombination</code> 方法，允许你自定义 combination。</p>
-<p>因为 transform 被广泛应用，Jkf 预先把它注册成了 combination。你可以像这样在 keyframes 里使用 transform 了：</p>
+<p>因为 transform 被广泛应用，Jkf 预先把它注册成了 combination。你可以像这样在 keyframes 里使用 transform 了:</p>
 <pre><code>{
   0: { translateX: 0, rotateZ: 0, borderRadius: 0, opacity: 1 },
   0.5: { borderRadius: &#39;50%&#39;, opacity: 0.5 },
   1: { translateX: &#39;100%&#39;, rotateZ: &#39;360deg&#39;, borderRadius: 0, opacity: 1 }
 };
 </code></pre><h2 id="usage">Usage</h2>
-<h3 id="jkf-update-elem-keyframes-progress-">Jkf.update(elem, keyframes, progress)</h3>
-<p>Description: 给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">demo</a></p>
+<h4 id="jkf-update-elem-keyframes-progress-">Jkf.update(elem, keyframes, progress)</h4>
+<p>给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">demo</a></p>
 <ul>
-<li>elem: dom 元素</li>
-<li>keyframes: Jkf 使用的 keyframes rule</li>
-<li>progress: 一个 0 ~ 1 之间的小数</li>
+<li><p>elem ( type: dom ): 要操作的元素</p>
+</li>
+<li><p>keyframes ( type: object ): Jkf 使用的 keyframes rule</p>
+</li>
+<li><p>progress ( type: number ): 一个 0 ~ 1 之间的小数</p>
+</li>
 </ul>
-<h3 id="jkf-animate">Jkf.animate</h3>
-<h3 id="jkf-utils">Jkf.utils</h3>
+<h4 id="jkf-animate-elem-keyframes-duration-options-controller">Jkf.animate(elem, keyframes, duration [, options]) =&gt; controller</h4>
+<p>进行一段基于 keyframes 的动画。通过函数返回的 controller，可以对已经开始的动画进行控制。<a href="http://codepen.io/chef/pen/RWLwOX">demo</a></p>
+<ul>
+<li><p>elem ( type: dom ): 要操作的元素</p>
+</li>
+<li><p>keyframes ( type: object ): Jkf 使用的 keyframes rule</p>
+</li>
+<li><p>duration ( type: number ): 动画时间，以 ms 为单位</p>
+</li>
+<li><p>options ( type: object ) : 一个 javascript 对象，其中的所有项都是可选的</p>
+<ul>
+<li><p>from ( type: number, default: 0 ): 设定动画的起始点</p>
+</li>
+<li><p>to ( type: number, default: 1 ): 设定动画的结束点。to 不需要大于 from，<a href="http://codepen.io/chef/pen/YyrYYP"><code>{ from: 1, to: 0 }</code></a> 是允许的</p>
+</li>
+<li><p>timingFunction ( type: array | string, default: &#39;ease&#39; ): 支持数组形式的 cubic-bezier values，支持 linear，ease，ease-in，ease-out，ease-in-out 五种关键字</p>
+</li>
+<li><p>onUpdate ( type: function, params: [elem, progress] ): 动画每一次 update 时执行的 callback。elem 和当前的 progress 被传入函数。</p>
+</li>
+<li><p>onEnd ( type: function, params: [elem] ): 动画结束后执行的 callback。elem 被传入函数。</p>
+</li>
+</ul>
+</li>
+<li><p>controller ( type: object ): 可以对已经开始的动画进行控制。</p>
+<ul>
+<li><p>controller.pause(): 暂停</p>
+</li>
+<li><p>controller.resume(): 继续</p>
+</li>
+<li><p>controller.toggler(): 切换暂停或者继续</p>
+</li>
+</ul>
+</li>
+</ul>
