@@ -41,7 +41,14 @@ jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination�
 
 ## Usage
 
-### Jkf.update
+### Jkf.update(elem, keyframes, progress)
+Description: 给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">demo</a>
+
+ - elem: dom 元素
+ - keyframes: Jkf 使用的 keyframes rull
+ - progress: 一个 0 ~ 1 之间的小数
+
+
 
 ### Jkf.animate
 
