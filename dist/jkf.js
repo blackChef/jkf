@@ -77,7 +77,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return ret;
 	}
 
-	// 默认将 transform 注册成bundle
+	// 默认将 transform 注册成 combination
 	registerCombination({
 	  name: prefix('transform'),
 	  check: function check(propName) {
@@ -94,8 +94,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _jkf = {
 	  update: update,
 	  animate: animate,
-	  registerCombination: registerCombination,
 	  utils: {
+	    registerCombination: registerCombination,
 	    parse: parse,
 	    reverseKf: reverseKf,
 	    prefix: prefix
@@ -147,7 +147,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	
 	// combinationProp 指的是由多个子属性组成的属性
-	// 例如 transform 由 rotate，transform 等组成,
+	// 例如 transform 由 rotate，translate 等组成,
 	// 可以自定义 combination，例如将 background-color 分拆成r, g, b
 
 	// 存放注册的 combination
