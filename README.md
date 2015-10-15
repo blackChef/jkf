@@ -5,7 +5,7 @@ A javascript animation library that use css-keyframes-animation syntax.
 
 
 ## Keyframes
-这是在 jkf 里使用的 keyframes:
+这是在 Jkf 里使用的 keyframes:
 
     {
         0: { left: 0, borderRadius: 0 },
@@ -24,11 +24,15 @@ A javascript animation library that use css-keyframes-animation syntax.
 
 transform 可以被当作由 translateX, rotateZ, scale 三个子属性组成。我们把像这样能拆分成多个子属性的属性叫做 combination。
 
-combination 的子属性未必是要“真实”存在的。`background-color: rgb(0, 0, 0)` 可以认为 background-color 是由 r, g, b 三个子属性组成。
+combination 的子属性未必是要“真实”存在的。
 
-jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination。
+`background-color: rgb(0, 0, 0)`
 
-因为 transform 被广泛应用，jkf 预先把它注册成了 combination。你可以像这样在 keyframes 里使用 transform 了：
+这里可以认为 background-color 是由 r, g, b 三个子属性组成。
+
+Jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination。
+
+因为 transform 被广泛应用，Jkf 预先把它注册成了 combination。你可以像这样在 keyframes 里使用 transform 了：
 
     {
       0: { translateX: 0, rotateZ: 0, borderRadius: 0, opacity: 1 },
@@ -45,7 +49,7 @@ jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination�
 Description: 给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">demo</a>
 
  - elem: dom 元素
- - keyframes: Jkf 使用的 keyframes rull
+ - keyframes: Jkf 使用的 keyframes rule
  - progress: 一个 0 ~ 1 之间的小数
 
 
