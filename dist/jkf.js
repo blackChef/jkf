@@ -77,7 +77,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return ret;
 	}
 
-	// 默认将 transform 注册成bundle
+	// 默认将 transform 注册成 combination
 	registerCombination({
 	  name: prefix('transform'),
 	  check: function check(propName) {
@@ -94,8 +94,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _jkf = {
 	  update: update,
 	  animate: animate,
-	  registerCombination: registerCombination,
 	  utils: {
+	    registerCombination: registerCombination,
 	    parse: parse,
 	    reverseKf: reverseKf,
 	    prefix: prefix

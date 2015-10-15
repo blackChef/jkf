@@ -1,5 +1,5 @@
 <h1 id="jkf">Jkf</h1>
-<p>A javascript animation library that use css-keyframes-animation syntax. <a href="http://codepen.io/collection/AZMqqO/">demos</a></p>
+<p>A javascript animation library that use css-keyframes-animation syntax. <a href="http://codepen.io/collection/AZMqqO/">examples</a></p>
 <h2 id="keyframes">Keyframes</h2>
 <p>这是在 Jkf 里使用的 keyframes:</p>
 <pre><code>{
@@ -26,9 +26,11 @@
   0.5: { borderRadius: &#39;50%&#39;, opacity: 0.5 },
   1: { translateX: &#39;100%&#39;, rotateZ: &#39;360deg&#39;, borderRadius: 0, opacity: 1 }
 };
-</code></pre><h2 id="usage">Usage</h2>
+</code></pre><p><a href="https://github.com/blackChef/jkf/blob/master/src/index.jsx#L24">Jkf 内部是如何注册 transform 的</a></p>
+<p><a href="http://codepen.io/chef/pen/RWZeZx">如何把 background-color 注册成 combination</a></p>
+<h2 id="usage">Usage</h2>
 <h4 id="jkf-update-elem-keyframes-progress-">Jkf.update(elem, keyframes, progress)</h4>
-<p>给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">demo</a></p>
+<p>给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">example</a></p>
 <ul>
 <li><p>elem ( type: dom ): 要操作的元素</p>
 </li>
@@ -38,7 +40,7 @@
 </li>
 </ul>
 <h4 id="jkf-animate-elem-keyframes-duration-options-controller">Jkf.animate(elem, keyframes, duration [, options]) =&gt; controller</h4>
-<p>进行一段基于 keyframes 的动画。通过函数返回的 controller，可以对已经开始的动画进行控制。<a href="http://codepen.io/chef/pen/RWLwOX">demo</a></p>
+<p>进行一段基于 keyframes 的动画。通过函数返回的 controller，可以对已经开始的动画进行控制。</p>
 <ul>
 <li><p>elem ( type: dom ): 要操作的元素</p>
 </li>
@@ -50,17 +52,18 @@
 <ul>
 <li><p>from ( type: number, default: 0 ): 设定动画的起始点</p>
 </li>
-<li><p>to ( type: number, default: 1 ): 设定动画的结束点。to 不需要大于 from，<a href="http://codepen.io/chef/pen/YyrYYP"><code>{ from: 1, to: 0 }</code></a> 是允许的</p>
+<li><p>to ( type: number, default: 1 ): 设定动画的结束点。to 不需要大于 from，<code>{ from: 1, to: 0 }</code>
+是允许的。<a href="http://codepen.io/chef/pen/YyrYYP">example</a></p>
 </li>
 <li><p>timingFunction ( type: array | string, default: &#39;ease&#39; ): 支持数组形式的 cubic-bezier values，支持 linear，ease，ease-in，ease-out，ease-in-out 五种关键字</p>
 </li>
 <li><p>onUpdate ( type: function, params: [elem, progress] ): 动画每一次 update 时执行的 callback。elem 和当前的 progress 被传入函数。</p>
 </li>
-<li><p>onEnd ( type: function, params: [elem] ): 动画结束后执行的 callback。elem 被传入函数。</p>
+<li><p>onEnd ( type: function, params: [elem] ): 动画结束后执行的 callback。elem 被传入函数。<examplea href="http://codepen.io/chef/pen/YyrEYJ"></a></p>
 </li>
 </ul>
 </li>
-<li><p>controller ( type: object ): 可以对已经开始的动画进行控制。</p>
+<li><p>controller ( type: object ): 可以对已经开始的动画进行控制。<a href="http://codepen.io/chef/pen/RWLwOX">example</a></p>
 <ul>
 <li><p>controller.pause(): 暂停</p>
 </li>

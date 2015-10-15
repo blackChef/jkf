@@ -21,7 +21,7 @@ function reverseKf(kf) {
   return ret;
 }
 
-// 默认将 transform 注册成bundle
+// 默认将 transform 注册成 combination
 registerCombination({
   name: prefix('transform'),
   check: function(propName) {
@@ -38,8 +38,8 @@ registerCombination({
 var _jkf = {
   update: update,
   animate: animate,
-  registerCombination: registerCombination,
   utils: {
+    registerCombination: registerCombination,
     parse: parse,
     reverseKf: reverseKf,
     prefix: prefix
