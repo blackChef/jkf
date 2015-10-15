@@ -100,6 +100,11 @@ function animate(elem, kf, duration, options = {}) {
 }
 
 function setAnimateOptions(options) {
+  if ( Math.max(options.from, options.to) > 1 || Math.min(options.from, options.to) < 0 ) {
+    // TODO: better error message
+    throw('points out of range');
+  }
+
   var defaultOptions = {
     from: 0,
     to: 1,
