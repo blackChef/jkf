@@ -15,6 +15,7 @@ Notice that the key is a decimal instead of percentage, the property name is in 
 
 ## Combinations
 
+<a href="#usage">usage</a>
 ## Usage
 
 ### Jkf.update
