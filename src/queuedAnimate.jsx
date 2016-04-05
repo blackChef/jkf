@@ -1,6 +1,6 @@
 var animate = require('./animate.jsx');
 
-module.exports = function(elem, animations) {
+module.exports = function(elem, animations, callback) {
   var bindedAnimate = animate.bind(undefined, elem);
 
   var i = 0;
@@ -24,6 +24,10 @@ module.exports = function(elem, animations) {
       };
 
       bindedAnimate.apply(undefined, curAnimation);
+    } else {
+      if (callback) {
+        callback();
+      }
     }
   }
 

@@ -89,14 +89,16 @@ Jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination�
   - controller.toggler(): 切换暂停或者继续
 
 
-#### Jkf.queuedAnimate(elem, ...animationConfigs)
+#### Jkf.queuedAnimate(elem, ...animationConfigs, callback)
 
     Jkf.queuedAnimate(elem, [
       [kf1, duration1, options1],
       [kf2, duration2, options2],
       [kf3, duration3, options3],
       ...
-    ]);
+    ], callback);
+
+Callback is called when last animation ended;
 
 
 
