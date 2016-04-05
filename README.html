@@ -26,8 +26,8 @@
   0.5: { borderRadius: &#39;50%&#39;, opacity: 0.5 },
   1: { translateX: &#39;100%&#39;, rotateZ: &#39;360deg&#39;, borderRadius: 0, opacity: 1 }
 };
-</code></pre><p><a href="https://github.com/blackChef/jkf/blob/master/src/index.jsx#L24">Jkf 内部是如何注册 transform 的</a></p>
-<p><a href="http://codepen.io/chef/pen/RWZeZx">如何把 background-color 注册成 combination</a></p>
+</code></pre><p><a href="https://github.com/blackChef/jkf/blob/master/src/index.jsx#L24">Jkf 内部是如何注册 transform 的</a>
+<a href="http://codepen.io/chef/pen/RWZeZx">如何把 background-color 注册成 combination</a></p>
 <h2 id="usage">Usage</h2>
 <h4 id="jkf-update-elem-keyframes-progress-">Jkf.update(elem, keyframes, progress)</h4>
 <p>给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">example</a></p>
@@ -74,3 +74,11 @@
 </ul>
 </li>
 </ul>
+<h4 id="jkf-queuedanimate-elem-animationconfigs-">Jkf.queuedAnimate(elem, ...animationConfigs)</h4>
+<pre><code>Jkf.queuedAnimate(elem, [
+  [kf1, duration1, options1],
+  [kf2, duration2, options2],
+  [kf3, duration3, options3],
+  ...
+]);
+</code></pre>

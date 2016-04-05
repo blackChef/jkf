@@ -13,6 +13,7 @@ A javascript animation library that use css-keyframes-animation syntax. <a href=
     }
 
 它是一个长得很像 css-keyframes 的 javascript object。值得注意的是:
+
  - 描述时间点的 key 是小数而不是百分数
  - 属性名是驼峰式的
  - 属性值为 0 时可以不加单位（百分号在这里被当作单位）
@@ -40,16 +41,14 @@ Jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination�
       1: { translateX: '100%', rotateZ: '360deg', borderRadius: 0, opacity: 1 }
     };
 
-<a href="https://github.com/blackChef/jkf/blob/master/src/index.jsx#L24">Jkf 内部是如何注册 transform 的</a>
-
-<a href="http://codepen.io/chef/pen/RWZeZx">如何把 background-color 注册成 combination</a>
-
+[Jkf 内部是如何注册 transform 的](https://github.com/blackChef/jkf/blob/master/src/index.jsx#L24)
+[如何把 background-color 注册成 combination](http://codepen.io/chef/pen/RWZeZx)
 
 
 ## Usage
 
 #### Jkf.update(elem, keyframes, progress)
-给定 progress，把元素 style 成 keyframes 里相对应的状态。<a href="http://codepen.io/chef/pen/WQEgmJ">example</a>
+给定 progress，把元素 style 成 keyframes 里相对应的状态。[example](http://codepen.io/chef/pen/WQEgmJ)
 
  - elem ( type: dom ): 要操作的元素
 
@@ -88,6 +87,16 @@ Jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination�
   - controller.resume(): 继续
 
   - controller.toggler(): 切换暂停或者继续
+
+
+#### Jkf.queuedAnimate(elem, ...animationConfigs)
+
+    Jkf.queuedAnimate(elem, [
+      [kf1, duration1, options1],
+      [kf2, duration2, options2],
+      [kf3, duration3, options3],
+      ...
+    ]);
 
 
 
