@@ -1,7 +1,6 @@
 require('array.prototype.find');
 require('es6-object-assign').polyfill();
-require('./polyfills/requestAnimationFrame.jsx');
-
+require('raf').polyfill();
 
 var combination = require('./combination.jsx');
 var registerCombination = combination.registerCombination;
@@ -11,6 +10,7 @@ var update = require('./update.jsx');
 var animate = require('./animate.jsx');
 var parse = require('./parse.jsx');
 var prefix = require('./prefixHandler.jsx');
+var queuedAnimate = require('./queuedAnimate.jsx');
 
 
 // 可以把kf 反过来的工具函数
@@ -40,6 +40,7 @@ registerCombination({
 var _jkf = {
   update: update,
   animate: animate,
+  queuedAnimate: queuedAnimate,
   utils: {
     registerCombination: registerCombination,
     parse: parse,

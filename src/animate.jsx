@@ -2,7 +2,6 @@ var style = require('./style.jsx');
 var BezierEasing = require('bezier-easing');
 var parse = require('./parse.jsx');
 
-
 // duration: 以毫秒为单位
 // options = {
 //   from
