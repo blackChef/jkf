@@ -30,16 +30,16 @@ function animate(elem, kf, duration, options = {}) {
   // 可以控制动画暂停，继续
   var isPaused = false;
   var isEnd = false;
-  var controller = {
-    pauseTime: 0,
-    pausedDuration: 0,
+  var pauseTime = 0;
+  var pausedDuration = 0;
 
+  var controller = {
     pause: function() {
       if (isPaused || isEnd) {
         return;
       }
       isPaused = true;
-      this.pauseTime = Date.now();
+      pauseTime = Date.now();
     },
 
     resume: function() {
@@ -47,20 +47,20 @@ function animate(elem, kf, duration, options = {}) {
         return;
       }
       isPaused = false;
-      this.pausedDuration += Date.now() - this.pauseTime;
-      loop(this.pausedDuration);
+      pausedDuration += Date.now() - pauseTime;
+      loop();
     },
 
     toggle: function() {
       if (isPaused) {
         this.resume();
-      }  else {
+      } else {
         this.pause();
       }
     }
   };
 
-  function loop(pausedDuration = 0) {
+  function loop() {
     if (isPaused) {
       return;
     }
@@ -71,12 +71,12 @@ function animate(elem, kf, duration, options = {}) {
 
       // 经过 timingFunction 处理之后的 progress
       var computedProgress = range * timingFunction.get(timeProgress) + from;
+      style(elem, kf, computedProgress);
 
+      // 提供给 onUpdate callback
       var realProgress = range * timeProgress + from;
-
-      // 动画的 progress 可以超出0，1的范围（反弹动画）
-      style(elem, kf, computedProgress, true);
       onUpdate(elem, realProgress);
+
       requestAnimationFrame(function() {
         loop(pausedDuration);
       });
@@ -84,7 +84,7 @@ function animate(elem, kf, duration, options = {}) {
       // to 这个帧不一定正好能达到
       // 第一个大于等于 to 的帧被认为是 to
     } else {
-      style(elem, kf, to, true);
+      style(elem, kf, to);
       onUpdate(elem, to);
       onEnd(elem);
       isEnd = true;
