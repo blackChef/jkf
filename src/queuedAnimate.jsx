@@ -7,23 +7,29 @@ module.exports = function(elem, animations, callback) {
 
   function loop() {
     if (i < animations.length) {
-      var curAnimation = animations[i].slice(0);
+      var config = animations[i].slice(0);
 
-      if (curAnimation[2] === undefined) {
-        curAnimation[2] = {};
+      if (config[2] === undefined) {
+        config[2] = {};
       }
 
-      var curOptions = curAnimation[2];
+      var options = config[2];
+      var delay = config[3] || 0;
+      var oldOnEnd = options.onEnd || function() {};
 
-      var oldOnEnd = curOptions.onEnd || function() {};
 
-      curOptions.onEnd = function() {
-        oldOnEnd();
+      options.onEnd = function() {
         i += 1;
-        loop();
+        oldOnEnd();
+
+        setTimeout(function() {
+          loop();
+        }, delay);
       };
 
-      bindedAnimate.apply(undefined, curAnimation);
+      bindedAnimate.apply(undefined, config);
+
+    // all finished
     } else {
       if (callback) {
         callback();

@@ -90,15 +90,14 @@ Jkf 提供了 `Jkf.registerCombination` 方法，允许你自定义 combination�
 
 
 #### Jkf.queuedAnimate(elem, ...animationConfigs, callback)
-
     Jkf.queuedAnimate(elem, [
-      [kf1, duration1, options1],
-      [kf2, duration2, options2],
-      [kf3, duration3, options3],
+      [kf1, duration1, options1, delay1],
+      [kf2, duration2, options2, delay2],
+      [kf3, duration3, options3, delay3],
       ...
     ], callback);
 
-Callback is called when last animation ended;
+Delay is optional. Callback is called when last animation ended;
 
 
 
