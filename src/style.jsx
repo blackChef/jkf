@@ -71,7 +71,7 @@ function style(elem, kf, progress) {
   // 遍历完 kf 之后再应用 combinations 属性
   Object.keys(combinations).forEach(function(propName) {
     var item = combinations[propName];
-    elem.style[propName] = item.combine(item.values);
+    elem.style[propName] = item.combine(item.values, elem);
   });
 }
 
