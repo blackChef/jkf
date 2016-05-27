@@ -5,16 +5,26 @@ function getValue(kfItem, progress) {
   var valueNum;
   var { rule, unit } = kfItem;
 
-  // progress 大于等于1的值被带入最后一段 rule 里计算
-  if (progress >= 1) {
-    valueNum = rule[rule.length - 1].fn(progress);
+  // progress 的变化是非连续的，
+  // 大于 lastRuleEndPoint 的 progress 应该被当作 lastRuleEndPoint
+  var lastRule = rule[rule.length - 1];
+  var lastRuleEndPoint = lastRule.endPoint;
 
-  // progress 小于0的值被带入第一段 rule 里计算
-  } else if (progress < 0) {
-    valueNum = rule[0].fn(progress);
+
+  // 小于 firstRuleStartPoint 的 progress 直接 return
+  var firstRule = rule[0];
+  var firstRuleStartPoint = firstRule.startPoint;
+
+
+  if (progress < firstRuleStartPoint) {
+    return;
+  }
+
+  else if (progress >= lastRule.endPoint) {
+    valueNum = lastRule.fn(lastRuleEndPoint);
 
   } else {
-    // 等于1的情况已经在前面解决了
+
     var mathedRule = rule.find(function(ruleItem) {
       return progress >= ruleItem.startPoint && progress < ruleItem.endPoint;
     });
@@ -33,6 +43,9 @@ function style(elem, kf, progress) {
   kf.forEach(function(kfItem) {
     var { propName } = kfItem;
     var value = getValue(kfItem, progress);
+
+    if (value === undefined) return;
+
 
     // 检查该属性是否属于某个bundle
     var combination = isCombinationItem(propName);
