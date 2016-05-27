@@ -5,26 +5,37 @@ function getValue(kfItem, progress) {
   var valueNum;
   var { rule, unit } = kfItem;
 
-  // progress 的变化是非连续的，
-  // 大于 lastRuleEndPoint 的 progress 应该被当作 lastRuleEndPoint
-  var lastRule = rule[rule.length - 1];
-  var lastRuleEndPoint = lastRule.endPoint;
-
-
-  // 小于 firstRuleStartPoint 的 progress 直接 return
   var firstRule = rule[0];
   var firstRuleStartPoint = firstRule.startPoint;
 
+  var lastRule = rule[rule.length - 1];
+  var lastRuleEndPoint = lastRule.endPoint;
+
+  // 包含 0, 1 两点的 kf 可以通过 timingFunction 做 bounce back 的动画
+  // 小于 0 或 大于 1 的 progress 带入 firstRule 或 lastRule 计算
+
+  // 不包含 0, 1 两点的 kf，不适用 bounce back 的动画
+  // 忽略小于 firstRuleStartPoint 的 progress
+  // 因为 progress 的变化是非连续的，
+  // 大于 lastRuleEndPoint 的 progress 被当作 lastRuleEndPoint 计算
 
   if (progress < firstRuleStartPoint) {
-    return;
+    if (firstRuleStartPoint === 0) {
+      valueNum = firstRule.fn(progress);
+    } else {
+      return;
+    }
   }
 
   else if (progress >= lastRule.endPoint) {
-    valueNum = lastRule.fn(lastRuleEndPoint);
+    if (lastRuleEndPoint == 1) {
+      valueNum = lastRule.fn(progress);
+
+    } else {
+      valueNum = lastRule.fn(lastRuleEndPoint);
+    }
 
   } else {
-
     var mathedRule = rule.find(function(ruleItem) {
       return progress >= ruleItem.startPoint && progress < ruleItem.endPoint;
     });
