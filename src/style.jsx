@@ -5,16 +5,37 @@ function getValue(kfItem, progress) {
   var valueNum;
   var { rule, unit } = kfItem;
 
-  // progress 大于等于1的值被带入最后一段 rule 里计算
-  if (progress >= 1) {
-    valueNum = rule[rule.length - 1].fn(progress);
+  var firstRule = rule[0];
+  var firstRuleStartPoint = firstRule.startPoint;
 
-  // progress 小于0的值被带入第一段 rule 里计算
-  } else if (progress < 0) {
-    valueNum = rule[0].fn(progress);
+  var lastRule = rule[rule.length - 1];
+  var lastRuleEndPoint = lastRule.endPoint;
+
+  // 包含 0, 1 两点的 kf 可以通过 timingFunction 做 bounce back 的动画
+  // 小于 0 或 大于 1 的 progress 带入 firstRule 或 lastRule 计算
+
+  // 不包含 0, 1 两点的 kf，不适用 bounce back 的动画
+  // 忽略小于 firstRuleStartPoint 的 progress
+  // 因为 progress 的变化是非连续的，
+  // 大于 lastRuleEndPoint 的 progress 被当作 lastRuleEndPoint 计算
+
+  if (progress < firstRuleStartPoint) {
+    if (firstRuleStartPoint === 0) {
+      valueNum = firstRule.fn(progress);
+    } else {
+      return;
+    }
+  }
+
+  else if (progress >= lastRule.endPoint) {
+    if (lastRuleEndPoint == 1) {
+      valueNum = lastRule.fn(progress);
+
+    } else {
+      valueNum = lastRule.fn(lastRuleEndPoint);
+    }
 
   } else {
-    // 等于1的情况已经在前面解决了
     var mathedRule = rule.find(function(ruleItem) {
       return progress >= ruleItem.startPoint && progress < ruleItem.endPoint;
     });
@@ -33,6 +54,9 @@ function style(elem, kf, progress) {
   kf.forEach(function(kfItem) {
     var { propName } = kfItem;
     var value = getValue(kfItem, progress);
+
+    if (value === undefined) return;
+
 
     // 检查该属性是否属于某个bundle
     var combination = isCombinationItem(propName);
