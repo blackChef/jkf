@@ -7,11 +7,6 @@ module.exports = function(kf) {
     return kf;
 
   } else {
-    var points = Object.keys(kf).sort();
-    if ( +points[0] !== 0 || +points[points.length -1] !== 1 ) {
-      throw('bad keyframes');
-    }
-
     return parser(kf);
   }
 };
