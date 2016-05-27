@@ -4,30 +4,28 @@
 // 可以自定义 combination，例如将 background-color 分拆成r, g, b
 
 // 存放注册的 combination
-var combinationProps = [];
+var registeredCombinationProps = [];
 
 // combination: {
 //  name:
 //  主属性名，elem.style[name] = combinedValue
 //
-//  check(propName) => bool:
+//  check(subPropName) => bool:
 //  检查某个属性是否是该 combination 的子属性
 //
-//  combine([{propName, value}...]) => combinedValue:
+//  combine([{subPropName, value, elem}...]) => combinedValue:
 //  合并子属性的方法，elem.style[name] = combinedValue
 // }
 //
 // 不对 combination 是否已经注册做检查
 function registerCombination(combination) {
-  combinationProps.push( Object.create(combination) );
+  registeredCombinationProps.push(combination);
 }
 
 
 // 检查该属性是某个 combination 的子属性
-function isCombinationItem(propName) {
-  return combinationProps.find( item => item.check(propName) );
+function isCombination(subPropName) {
+  return registeredCombinationProps.find( item => item.check(subPropName) );
 }
 
-
-exports.registerCombination = registerCombination;
-exports.isCombinationItem = isCombinationItem;
+module.exports = { registerCombination, isCombination, registeredCombinationProps };

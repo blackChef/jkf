@@ -18,6 +18,7 @@ var parse = require('./parse.jsx');
 //
 //   onEnd(elem)：在动画结束后执行的函数
 // }
+
 function animate(elem, kf, duration, options = {}) {
   var { from, to, timingFunction, onUpdate, onEnd } = setAnimateOptions(options);
   kf = parse(kf);
@@ -34,17 +35,13 @@ function animate(elem, kf, duration, options = {}) {
 
   var controller = {
     pause: function() {
-      if (isPaused || isEnd) {
-        return;
-      }
+      if (isPaused || isEnd) return;
       isPaused = true;
       pauseTime = Date.now();
     },
 
     resume: function() {
-      if (!isPaused || isEnd) {
-        return;
-      }
+      if (!isPaused || isEnd) return;
       isPaused = false;
       pausedDuration += Date.now() - pauseTime;
       loop();
@@ -60,9 +57,7 @@ function animate(elem, kf, duration, options = {}) {
   };
 
   function loop() {
-    if (isPaused) {
-      return;
-    }
+    if (isPaused) return;
 
     var curTime = Date.now() - pausedDuration;
     if (curTime < endTime) {
@@ -76,9 +71,7 @@ function animate(elem, kf, duration, options = {}) {
       var realProgress = range * timeProgress + from;
       onUpdate(elem, realProgress);
 
-      requestAnimationFrame(function() {
-        loop(pausedDuration);
-      });
+      requestAnimationFrame(loop);
 
       // to 这个帧不一定正好能达到
       // 第一个大于等于 to 的帧被认为是 to
@@ -91,37 +84,29 @@ function animate(elem, kf, duration, options = {}) {
   }
 
 
-  requestAnimationFrame(function() {
-    loop();
-  });
+  requestAnimationFrame(loop);
 
   return controller;
 }
 
 function setAnimateOptions(options) {
-  if ( Math.max(options.from, options.to) > 1 || Math.min(options.from, options.to) < 0 ) {
+  var { from = 0, to = 1, onUpdate = () => {}, onEnd = () => {}, timingFunction = 'ease' } = options;
+
+  if ( Math.max(from, to) > 1 || Math.min(from, to) < 0 ) {
     // TODO: better error message
-    throw('points out of range');
+    throw('from or to is out of range');
   }
 
-  var defaultOptions = {
-    from: 0,
-    to: 1,
-    onUpdate: function() {},
-    onEnd: function() {}
+  var tf = Array.isArray(timingFunction) ? BezierEasing.call(null, timingFunction) :
+                                           BezierEasing.css[timingFunction]; // keywords
+
+  return {
+    from,
+    to,
+    onUpdate,
+    onEnd,
+    timingFunction: tf,
   };
-
-  var tf = options.timingFunction;
-
-  // cubic-bezier values
-  if ( Array.isArray(tf) ) {
-    options.timingFunction = BezierEasing.call(null, tf);
-  } else {
-    options.timingFunction = BezierEasing.css[tf] ||  // keywords
-                             BezierEasing.css.ease;   // 默认用 ease
-  }
-
-  return Object.assign({}, defaultOptions, options);
 }
 
 module.exports = animate;

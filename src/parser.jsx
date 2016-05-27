@@ -1,4 +1,3 @@
-var _ = require('lodash');
 
 // original: {
 //   0: {
@@ -13,7 +12,6 @@ var _ = require('lodash');
 //     rotate: '360deg', opacity: 1
 //   }
 // };
-
 
 // step1 => [
 //   { propName: 'rotate',
@@ -32,23 +30,42 @@ var _ = require('lodash');
 //     ]
 //   }
 // ]
+
+// // step2 => [
+//   { propName: 'rotate',
+//     unit: 'deg',
+//     rule: [
+//       { startPoint: 0, endPoint: 0.7, fn: (progress) => value... },
+//       { startPoint: 0.7, endPoint: 1, fn: (progress) => value... }
+//     ],
+//   },
+//   { propName: 'opacity',
+//     unit: '',
+//     rule: [
+//       { startPoint: 0, endPoint: 1, fn: (progress) => value... }
+//     ]
+//   }
+// ]
+
+
 function step1(original) {
   var ret = [];
+
+  // keep rule order
   var points = Object.keys(original).sort();
+
   points.forEach(function(point, index, array) {
     var rule = original[point];
 
     Object.keys(rule).forEach(function(propName) {
-      var value = rule[propName] + '';
-      var valueNum = +value.match(/-?[\d\.]+/)[0];
-      var valueUnit = value.replace(valueNum, '');
+      var [, valueNum, valueUnit] = (rule[propName] + '').match(/(-?[\d\.]+)(.*)/);
 
       var ruleItem = {
         point: +point,
-        value: valueNum
+        value: +valueNum
       };
 
-      var retItem = ret.find( item => (item.propName == propName) );
+      var retItem = ret.find( item => item.propName == propName );
 
       if (!retItem) {
         ret.push({
@@ -72,21 +89,7 @@ function step1(original) {
 }
 
 
-// step2 => [
-//   { propName: 'rotate',
-//     unit: 'deg',
-//     rule: [
-//       { startPoint: 0, endPoint: 0.7, fn: (progress) => value... },
-//       { startPoint: 0.7, endPoint: 1, fn: (progress) => value... }
-//     ],
-//   },
-//   { propName: 'opacity',
-//     unit: '',
-//     rule: [
-//       { startPoint: 0, endPoint: 1, fn: (progress) => value... }
-//     ]
-//   }
-// ]
+
 function step2(step1Ret) {
   return step1Ret.map(function(item, index, array) {
     item.rule = compileRule(item.rule);
@@ -96,7 +99,7 @@ function step2(step1Ret) {
 
 
 // 根据两点得到线性方程
-var setEquation = _.memoize(function(x1, y1, x2, y2) {
+var setEquation = function(x1, y1, x2, y2) {
   var k = (y1 - y2) / (x1 - x2);
   var b = y1 - k * x1;
 
@@ -104,23 +107,21 @@ var setEquation = _.memoize(function(x1, y1, x2, y2) {
     // toFixed(8) 避免出现科学计数法
     return +(k * progress + b).toFixed(8);
   };
-});
+};
 
 function compileRule(rule) {
   var ret = [];
 
   rule.forEach(function(curItem, index, array) {
+    if (index === rule.length - 1) return;
+
     var nextItem = rule[index + 1];
-    if (nextItem) {
-      var startPoint = curItem.point;
-      var endPoint = nextItem.point;
-      var fn = setEquation(startPoint, curItem.value, endPoint, nextItem.value);
-      ret.push({
-        startPoint: startPoint,
-        endPoint: endPoint,
-        fn: fn
-      });
-    }
+
+    var { point: startPoint, value: curVal } = curItem;
+    var { point: endPoint, value: nextVal } = nextItem;
+    var fn = setEquation(startPoint, curVal, endPoint, nextVal);
+
+    ret.push({ startPoint, endPoint, fn });
   });
 
   return ret;
