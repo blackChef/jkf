@@ -1,3 +1,4 @@
+var _ = require('lodash');
 
 // original: {
 //   0: {
@@ -93,6 +94,18 @@ function step2(step1Ret) {
   });
 }
 
+
+// 根据两点得到线性方程
+var setEquation = _.memoize(function(x1, y1, x2, y2) {
+  var k = (y1 - y2) / (x1 - x2);
+  var b = y1 - k * x1;
+
+  return function(progress) {
+    // toFixed(8) 避免出现科学计数法
+    return +(k * progress + b).toFixed(8);
+  };
+});
+
 function compileRule(rule) {
   var ret = [];
 
@@ -111,17 +124,6 @@ function compileRule(rule) {
   });
 
   return ret;
-}
-
-// 根据两点得到线性方程
-function setEquation(x1, y1, x2, y2) {
-  var k = (y1 - y2) / (x1 - x2);
-  var b = y1 - k * x1;
-
-  return function(progress) {
-    // toFixed(8) 避免出现科学计数法
-    return (k * progress + b).toFixed(8);
-  };
 }
 
 module.exports = function(original) {
